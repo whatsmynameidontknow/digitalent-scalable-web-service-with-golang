@@ -37,7 +37,6 @@ func main() {
 	noAbsen := noAbsen(noAbsenUint64)
 	if person, ok := absenPerson[noAbsen]; !ok {
 		fmt.Printf("gaada orang yg nomor absennya %d (no absen cuma dari %d - %d)\n", noAbsen, start, start+n-1)
-		os.Exit(1)
 	} else {
 		fmt.Println(person)
 	}
