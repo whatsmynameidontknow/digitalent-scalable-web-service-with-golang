@@ -23,14 +23,22 @@ var R = rand.New(rand.NewPCG(0, 5))
 
 func GenerateRandomString(numCh int, numWords int) string {
 	var generated strings.Builder
+	generated.Grow(numCh)
 
-	for i := 0; i < numWords; i++ {
-		usedCh := numCh / numWords
-		for j := 0; j < usedCh; j++ {
+	numCh -= numWords - 1
+	eachWordChNum := numCh / numWords
+
+	for numCh > 0 {
+		if numWords == 1 {
+			eachWordChNum = numCh
+		}
+		for j := 0; j < eachWordChNum; j++ {
 			generated.WriteByte(huruf[R.IntN(len(huruf))])
 		}
-		if i < numWords-1 {
+		numCh -= eachWordChNum
+		if numWords > 1 {
 			generated.WriteByte(' ')
+			numWords--
 		}
 	}
 

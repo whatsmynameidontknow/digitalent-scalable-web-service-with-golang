@@ -31,12 +31,12 @@ func main() {
 	}
 	noAbsenUint64, err := strconv.ParseUint(os.Args[1], 10, 64)
 	if err != nil {
-		fmt.Println("nomor absen cuma bisa angka positif, y")
+		fmt.Println("nomor absen cuma bisa angka positif, y.")
 		os.Exit(1)
 	}
 	noAbsen := noAbsen(noAbsenUint64)
 	if person, ok := absenPerson[noAbsen]; !ok {
-		fmt.Printf("gaada orang yg nomor absennya %d (no absen cuma dari %d - %d)\n", noAbsen, start, start+n-1)
+		fmt.Printf("gaada orang yg nomor absennya %d (no absen cuma dari %d - %d).\n", noAbsen, start, start+n-1)
 	} else {
 		fmt.Println(person)
 	}
