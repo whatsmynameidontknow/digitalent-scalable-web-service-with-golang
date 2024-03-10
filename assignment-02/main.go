@@ -3,7 +3,8 @@ package main
 import (
 	"assignment-02/config"
 	"assignment-02/controller"
-	"assignment-02/lib"
+	"assignment-02/lib/database"
+	"assignment-02/lib/logging"
 	"assignment-02/middleware"
 	"assignment-02/repository"
 	"assignment-02/service"
@@ -28,15 +29,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := lib.NewDB(conf.DB)
+	db, err := database.New(conf.DB)
 	if err != nil {
 		os.Stderr.WriteString(err.Error())
 		os.Exit(1)
 	}
+	defer db.Close()
+	logger := logging.New(os.Stderr)
 
 	orderRepo := repository.NewOrderRepository(db)
 	itemRepo := repository.NewItemRepository()
-	orderService := service.NewOrderService(db, orderRepo, itemRepo)
+	orderService := service.NewOrderService(db, orderRepo, itemRepo, logger)
 	orderController := controller.NewOrderController(orderService)
 
 	r := http.NewServeMux()
@@ -53,7 +56,7 @@ func main() {
 	srv.Handler = middleware.Recover(middleware.Logging(r))
 	srv.Addr = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
 
-	fmt.Printf("server running at %s\n", srv.Addr)
+	fmt.Printf("server is running at %s\n", srv.Addr)
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			os.Stderr.WriteString(err.Error())
@@ -64,7 +67,6 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 	<-ctx.Done()
-
 	if err := srv.Shutdown(ctx); err != nil {
 		os.Stderr.WriteString(err.Error())
 		os.Exit(1)

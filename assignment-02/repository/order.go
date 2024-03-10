@@ -32,7 +32,7 @@ func (r *orderRepository) GetAll(ctx context.Context) ([]model.Order, error) {
 	query := `SELECT o.order_id, o.customer_name, o.ordered_at, i.item_id, i.item_code, i.description, i.quantity
 	FROM orders o
 	LEFT JOIN items i ON o.order_id=i.order_id
-	ORDER BY o.order_id ASC`
+	ORDER BY o.order_id, i.item_id ASC`
 
 	rows, err := r.db.QueryContext(ctx, query)
 	if err != nil {
@@ -66,7 +66,7 @@ func (r *orderRepository) GetByID(ctx context.Context, id uint) (model.Order, er
 	FROM orders o
 	LEFT JOIN items i ON o.order_id=i.order_id
 	WHERE o.order_id = $1
-	ORDER BY i.quantity ASC`
+	ORDER BY i.item_id ASC`
 	rows, err := r.db.QueryContext(ctx, query, id)
 	if err != nil {
 		return data, err
