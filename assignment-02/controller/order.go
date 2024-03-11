@@ -20,6 +20,16 @@ func NewOrderController(orderService service.OrderService) *orderController {
 	return &orderController{orderService}
 }
 
+// CreateOrder godoc
+// @Summary create a new order
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param request body dto.OrderRequest true "required body"
+// @Success 201 {object} helper.Response[dto.OrderCreateResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /orders [post]
 func (c *orderController) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.OrderRequest
@@ -58,6 +68,13 @@ func (c *orderController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetAllOrders godoc
+// @Summary list all orders
+// @Tags orders
+// @Produce json
+// @Success 200 {object} helper.Response[[]dto.OrderResponse]
+// @Failure 500 {object} helper.Response[any]
+// @Router /orders [get]
 func (c *orderController) GetAll(w http.ResponseWriter, r *http.Request) {
 	var resp helper.Response[[]dto.OrderResponse]
 	data, err := c.orderService.GetAll(r.Context())
@@ -75,6 +92,17 @@ func (c *orderController) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetOrderByID godoc
+// @Summary get a specific order by their ID
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param orderId path int true "Order ID"
+// @Success 200 {object} helper.Response[dto.OrderResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /orders/{orderId} [get]
 func (c *orderController) GetByID(w http.ResponseWriter, r *http.Request) {
 	var resp helper.Response[*dto.OrderResponse]
 	orderIDStr := r.PathValue("orderId")
@@ -106,6 +134,17 @@ func (c *orderController) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DeleteOrderByID godoc
+// @Summary delete order by their ID
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param orderId path int true "Order ID"
+// @Success 200 {object} helper.Response[any]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /orders/{orderId} [delete]
 func (c *orderController) Delete(w http.ResponseWriter, r *http.Request) {
 	var resp helper.Response[any]
 	orderIDStr := r.PathValue("orderId")
@@ -138,6 +177,18 @@ func (c *orderController) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateOrderByID godoc
+// @Summary update an order by their ID
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param orderId path int true "Order ID"
+// @Param request body dto.OrderRequest true "required body"
+// @Success 200 {object} helper.Response[any]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /orders/{orderId} [put]
 func (c *orderController) Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		resp helper.Response[any]

@@ -6,9 +6,9 @@ import (
 )
 
 type ItemRequest struct {
-	ItemCode    string `json:"itemCode"`
-	Description string `json:"description"`
-	Quantity    int    `json:"quantity"`
+	ItemCode    string `json:"itemCode" example:"123"`
+	Description string `json:"description" example:"a thing I need to order"`
+	Quantity    int    `json:"quantity" example:"69"`
 }
 
 func (i ItemRequest) Validate() error {

@@ -51,5 +51,5 @@ func (r *itemRepository) DeleteByOrderID(ctx context.Context, tx *sql.Tx, orderI
 		return err
 	}
 
-	return err
+	return nil
 }

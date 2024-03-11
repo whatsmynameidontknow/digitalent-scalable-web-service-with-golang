@@ -1,0 +1,252 @@
+basePath: /
+definitions:
+  dto.ItemRequest:
+    properties:
+      description:
+        example: a thing I need to order
+        type: string
+      itemCode:
+        example: "123"
+        type: string
+      quantity:
+        example: 69
+        type: integer
+    type: object
+  dto.ItemResponse:
+    properties:
+      description:
+        type: string
+      item_code:
+        type: string
+      item_id:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  dto.OrderCreateResponse:
+    properties:
+      order_id:
+        type: integer
+    type: object
+  dto.OrderRequest:
+    properties:
+      customerName:
+        example: John Doe
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemRequest'
+        type: array
+      orderedAt:
+        example: "2019-11-09T21:21:46+00:00"
+        type: string
+    type: object
+  dto.OrderResponse:
+    properties:
+      customer_name:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ItemResponse'
+        type: array
+      order_id:
+        type: integer
+      ordered_at:
+        type: string
+    type: object
+  helper.Response-any:
+    properties:
+      data: {}
+      errors:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
+  helper.Response-array_dto_OrderResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dto.OrderResponse'
+        type: array
+      errors:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
+  helper.Response-dto_OrderCreateResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.OrderCreateResponse'
+      errors:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
+  helper.Response-dto_OrderResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.OrderResponse'
+      errors:
+        items:
+          type: string
+        type: array
+      success:
+        type: boolean
+    type: object
+info:
+  contact: {}
+  description: submission for assignment-02
+  title: Hacktiv8-Golang assignment-02
+  version: "1.0"
+paths:
+  /orders:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response-array_dto_OrderResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+      summary: list all orders
+      tags:
+      - orders
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: required body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/helper.Response-dto_OrderCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+      summary: create a new order
+      tags:
+      - orders
+  /orders/{orderId}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+      summary: delete order by their ID
+      tags:
+      - orders
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response-dto_OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+      summary: get a specific order by their ID
+      tags:
+      - orders
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: integer
+      - description: required body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+      summary: update an order by their ID
+      tags:
+      - orders
+swagger: "2.0"

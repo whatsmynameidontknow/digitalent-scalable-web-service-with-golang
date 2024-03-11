@@ -12,4 +12,6 @@ CREATE TABLE IF NOT EXISTS items (
     description VARCHAR(100),
     quantity NUMERIC CHECK(quantity > 0),
     order_id INTEGER REFERENCES orders(order_id) ON DELETE CASCADE
-)
+);
+
+CREATE INDEX IF NOT EXISTS idx_items_order_id ON items (order_id);
