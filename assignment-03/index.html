@@ -1,0 +1,108 @@
+{{ define "index" }}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="{{.NextRefreshInSeconds}}" />
+    <title>Water and Wind</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            position: relative;
+            height: 200px;
+        }
+
+        .title {
+            font-size: xx-large;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+
+        .status-refresh {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+        }
+
+        .status {
+            font-size: 18px;
+        }
+
+        .refresh {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .aman {
+            color: green;
+        }
+
+        .siaga {
+            color: darkgoldenrod;
+        }
+
+        .bahaya {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="title">Water and Wind Report</div>
+        <div class="status-refresh">
+            <div class="status">
+                Water = {{.Status.Water}} meter<br>
+                Wind = {{.Status.Wind}} meter/detik<br>
+                Status Water = {{ if le .Status.Water 5 }} <span class="aman">Aman</span> {{ else if le
+                .Status.Water 8 }} <span class="siaga">Siaga</span> {{ else }} <span class="bahaya">Bahaya</span> {{ end
+                }}<br>
+                Status Wind = {{ if le .Status.Wind 6 }} <span class="aman">Aman</span> {{ else if le .Status.Wind
+                15 }} <span class="siaga">Siaga</span> {{ else }} <span class="bahaya">Bahaya</span> {{ end
+                }}<br>
+            </div>
+            <div class="refresh">
+                Next refresh will be in <span id="nextRefresh"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const updateTime = (seconds, nganunya) => {
+            nganunya.innerHTML = `${seconds} second${seconds > 1 ? 's' : ''}`;
+            setInterval(() => {
+                seconds--;
+                nganunya.innerHTML = `${seconds} second${seconds > 1 ? 's' : ''}`;
+            }, 1000);
+        }
+        window.onload = () => {
+            const nextRefreshSeconds = `{{.NextRefreshInSeconds}}`;
+            const nextRefresh = document.querySelector("#nextRefresh");
+            updateTime(parseInt(nextRefreshSeconds), nextRefresh);
+        };
+    </script>
+
+</body>
+
+</html>
+{{ end }}
