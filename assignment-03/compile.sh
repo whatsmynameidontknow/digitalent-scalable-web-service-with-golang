@@ -1,5 +1,5 @@
 #!/bin/bash
-file="main.go"
+file="."
 name=$1
 output_dir="./bin"
 mkdir -p $output_dir
