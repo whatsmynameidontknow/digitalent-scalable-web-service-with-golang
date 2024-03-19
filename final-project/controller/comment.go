@@ -8,17 +8,16 @@ import (
 	"strconv"
 )
 
-type photoController struct {
-	photoService service.PhotoService
+type commentController struct {
+	commentService service.CommentService
 }
 
-func NewPhotoController(photoService service.PhotoService) *photoController {
-	return &photoController{photoService}
+func NewCommentController(commentService service.CommentService) *commentController {
+	return &commentController{commentService}
 }
 
-func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
-	var data dto.PhotoRequest
-
+func (c *commentController) Create(w http.ResponseWriter, r *http.Request) {
+	var data dto.CommentRequest
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -31,7 +30,7 @@ func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := c.photoService.Create(r.Context(), data)
+	resp, err := c.commentService.Create(r.Context(), data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -42,8 +41,8 @@ func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func (c *photoController) GetAll(w http.ResponseWriter, r *http.Request) {
-	resp, err := c.photoService.GetAll(r.Context())
+func (c *commentController) GetAll(w http.ResponseWriter, r *http.Request) {
+	resp, err := c.commentService.GetAll(r.Context())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -54,16 +53,15 @@ func (c *photoController) GetAll(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
-	photoIDStr := r.PathValue("photoID")
-	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
+func (c *commentController) Update(w http.ResponseWriter, r *http.Request) {
+	commentIDStr := r.PathValue("commentID")
+	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var data dto.PhotoRequest
-
+	var data dto.CommentRequest
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -76,7 +74,7 @@ func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := c.photoService.Update(r.Context(), photoID, data)
+	resp, err := c.commentService.Update(r.Context(), commentID, data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -87,15 +85,15 @@ func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func (c *photoController) Delete(w http.ResponseWriter, r *http.Request) {
-	photoIDStr := r.PathValue("photoID")
-	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
+func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
+	commentIDStr := r.PathValue("commentID")
+	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = c.photoService.Delete(r.Context(), photoID)
+	err = c.commentService.Delete(r.Context(), commentID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -103,6 +101,6 @@ func (c *photoController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(dto.DeleteResponse{
-		Message: "your photo has been successfully deleted",
+		Message: "your comment has been successfully deleted",
 	})
 }

@@ -50,7 +50,7 @@ type PhotoResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	User UserResponse `json:"user"`
+	User User `json:"user"`
 }
 
 func (p PhotoRequest) ValidateUpdate() error {
@@ -79,4 +79,11 @@ type PhotoUpdateResponse struct {
 	PhotoURL  string    `json:"photo_url"`
 	UserID    uint64    `json:"user_id"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type Photo struct {
+	Title    string `json:"title"`
+	Caption  string `json:"caption"`
+	PhotoURL string `json:"photo_url"`
+	UserID   uint64 `json:"user_id"`
 }

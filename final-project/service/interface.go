@@ -18,3 +18,10 @@ type PhotoService interface {
 	Update(context.Context, uint64, dto.PhotoRequest) (dto.PhotoUpdateResponse, error)
 	Delete(context.Context, uint64) error
 }
+
+type CommentService interface {
+	Create(context.Context, dto.CommentRequest) (dto.CommentCreateResponse, error)
+	GetAll(context.Context) ([]dto.CommentResponse, error)
+	Update(context.Context, uint64, dto.CommentRequest) (dto.CommentUpdateResponse, error)
+	Delete(context.Context, uint64) error
+}

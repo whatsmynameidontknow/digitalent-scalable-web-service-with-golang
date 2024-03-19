@@ -18,4 +18,12 @@ type PhotoRepository interface {
 	FindAll(context.Context) ([]model.Photo, error)
 	Update(context.Context, *sql.Tx, model.Photo) (model.Photo, error)
 	Delete(context.Context, *sql.Tx, uint64) (uint64, error)
+	FindByID(context.Context, uint64) (model.Photo, error)
+}
+
+type CommentRepository interface {
+	Create(context.Context, model.Comment) (model.Comment, error)
+	FindAll(context.Context) ([]model.Comment, error)
+	Update(context.Context, *sql.Tx, model.Comment) (model.Comment, error)
+	Delete(context.Context, *sql.Tx, uint64) (uint64, error)
 }

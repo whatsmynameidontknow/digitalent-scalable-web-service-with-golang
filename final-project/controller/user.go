@@ -104,6 +104,6 @@ func (u *userController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(dto.DeleteResponse{
-		Message: "your account has benn successfully deleted",
+		Message: "your account has been successfully deleted",
 	})
 }

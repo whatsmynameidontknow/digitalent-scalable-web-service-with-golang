@@ -102,9 +102,11 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 }
 
 func (r *photoRepository) Delete(ctx context.Context, tx *sql.Tx, id uint64) (uint64, error) {
-	var ownerID uint64
+	var (
+		ownerID uint64
+		stmt    = `DELETE FROM photos WHERE id=$1 RETURNING user_id`
+	)
 
-	stmt := `DELETE FROM photos WHERE id=$1 RETURNING user_id`
 	row := tx.QueryRowContext(ctx, stmt, id)
 	if err := row.Err(); err != nil {
 		return ownerID, err
@@ -116,4 +118,36 @@ func (r *photoRepository) Delete(ctx context.Context, tx *sql.Tx, id uint64) (ui
 	}
 
 	return ownerID, nil
+}
+
+func (r *photoRepository) FindByID(ctx context.Context, id uint64) (model.Photo, error) {
+	var (
+		photo model.Photo
+		stmt  = `
+		SELECT
+			p.id,
+			p.title,
+			p.caption,
+			p.photo_url,
+			p.user_id,
+			p.created_at,
+			p.updated_at,
+			u.email,
+			u.username
+		FROM photos p
+		INNER JOIN users u ON p.user_id=u.id
+		WHERE p.id=$1`
+	)
+
+	row := r.db.QueryRowContext(ctx, stmt, id)
+	if err := row.Err(); err != nil {
+		return photo, err
+	}
+
+	err := row.Scan(&photo.ID, &photo.Title, &photo.Caption, &photo.URL, &photo.UserID, &photo.CreatedAt, &photo.UpdatedAt, &photo.User.Email, &photo.User.Username)
+	if err != nil {
+		return photo, err
+	}
+
+	return photo, nil
 }

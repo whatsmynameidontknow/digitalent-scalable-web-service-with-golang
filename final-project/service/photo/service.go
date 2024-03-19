@@ -82,7 +82,7 @@ func (s *photoService) GetAll(ctx context.Context) ([]dto.PhotoResponse, error) 
 			UserID:    photo.UserID,
 			CreatedAt: photo.CreatedAt,
 			UpdatedAt: photo.UpdatedAt,
-			User: dto.UserResponse{
+			User: dto.User{
 				Email:    photo.User.Email,
 				Username: photo.User.Username,
 			},
@@ -151,10 +151,6 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 }
 
 func (s *photoService) Delete(ctx context.Context, id uint64) error {
-	var (
-		err error
-	)
-
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
 		return helper.ErrInternal

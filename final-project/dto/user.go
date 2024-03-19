@@ -109,7 +109,7 @@ type UserUpdateResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserResponse struct {
+type User struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 }
