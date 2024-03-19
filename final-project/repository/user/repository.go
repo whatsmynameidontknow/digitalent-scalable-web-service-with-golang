@@ -9,12 +9,12 @@ import (
 )
 
 type userRepository struct {
-	DB *sql.DB
+	db *sql.DB
 }
 
 func New(db *sql.DB) repository.UserRepository {
 	return &userRepository{
-		DB: db,
+		db: db,
 	}
 }
 
@@ -25,7 +25,7 @@ func (r *userRepository) Create(ctx context.Context, data model.User) (model.Use
 		stmt = `INSERT INTO users(username, email, password, age, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, username, email, age`
 	)
 
-	row := r.DB.QueryRowContext(ctx, stmt, data.Username, data.Email, data.Password, data.Age, now, now)
+	row := r.db.QueryRowContext(ctx, stmt, data.Username, data.Email, data.Password, data.Age, now, now)
 	if err := row.Err(); err != nil {
 		return user, err
 	}
@@ -44,7 +44,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (model.U
 		stmt = `SELECT id, password FROM users WHERE email = $1`
 	)
 
-	row := r.DB.QueryRowContext(ctx, stmt, email)
+	row := r.db.QueryRowContext(ctx, stmt, email)
 	if err := row.Err(); err != nil {
 		return user, err
 	}
@@ -64,7 +64,7 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 		stmt = `UPDATE users SET email=$1, password=$2, updated_at=$3 WHERE id=$4 RETURNING id, username, email, age, updated_at`
 	)
 
-	row := r.DB.QueryRowContext(ctx, stmt, data.Email, data.Password, now, data.ID)
+	row := r.db.QueryRowContext(ctx, stmt, data.Email, data.Password, now, data.ID)
 	if err := row.Err(); err != nil {
 		return user, err
 	}
@@ -81,7 +81,7 @@ func (r *userRepository) Delete(ctx context.Context, userID uint) error {
 	var (
 		stmt = `DELETE FROM users WHERE id=$1`
 	)
-	res, err := r.DB.ExecContext(ctx, stmt, userID)
+	res, err := r.db.ExecContext(ctx, stmt, userID)
 	if err != nil {
 		return err
 	}

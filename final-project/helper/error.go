@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	ErrInternal = errors.New("there's something wrong. it's our fault, not yours")
+	ErrInternal     = errors.New("there's something wrong. it's our fault, not yours")
+	ErrUnauthorized = errors.New("you're not allowed to perform this action")
 )
 
 func ErrorDuplicate(constraint string) error {

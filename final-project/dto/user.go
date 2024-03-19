@@ -10,7 +10,7 @@ type UserRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Age      uint   `json:"age"`
+	Age      uint64 `json:"age"`
 }
 
 func (u UserRequest) ValidateCreate() error {
@@ -54,8 +54,8 @@ func isValidEmail(email string) bool {
 }
 
 type UserCreateResponse struct {
-	ID       uint   `json:"id"`
-	Age      uint   `json:"age"`
+	ID       uint64 `json:"id"`
+	Age      uint64 `json:"age"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
 }
@@ -102,13 +102,14 @@ func (u UserRequest) ValidateUpdate() error {
 }
 
 type UserUpdateResponse struct {
-	ID        uint      `json:"id"`
-	Age       uint      `json:"age"`
+	ID        uint64    `json:"id"`
+	Age       uint64    `json:"age"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserDeleteResponse struct {
-	Message string `json:"message"`
+type UserResponse struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
 }

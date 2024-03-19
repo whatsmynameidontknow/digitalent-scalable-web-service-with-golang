@@ -6,8 +6,10 @@ import (
 )
 
 type Photo struct {
-	ID, UserID           uint
+	ID, UserID           uint64
 	Title, URL           string
 	Caption              sql.NullString
 	CreatedAt, UpdatedAt time.Time
+
+	User User
 }

@@ -3,10 +3,9 @@ package model
 import "time"
 
 type User struct {
-	ID                   uint
+	ID, Age              uint64
 	Username, Email      string
 	Password             []byte
-	Age                  uint
 	CreatedAt, UpdatedAt time.Time
 
 	Photos []Photo

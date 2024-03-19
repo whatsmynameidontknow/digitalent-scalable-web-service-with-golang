@@ -88,7 +88,7 @@ func (u *userService) Update(ctx context.Context, data dto.UserRequest) (dto.Use
 	if !ok {
 		return resp, helper.ErrInternal
 	}
-	user.ID = uint(userID)
+	user.ID = uint64(userID)
 	user.Email = data.Email
 	user.Password, err = helper.HashPassword(data.Password)
 	if err != nil {
