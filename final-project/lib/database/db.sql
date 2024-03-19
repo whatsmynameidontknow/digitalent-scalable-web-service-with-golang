@@ -1,0 +1,44 @@
+-- CREATE users TABLE
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    age INTEGER CHECK(age >= 8) NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- CREATE photos TABLE
+CREATE TABLE IF NOT EXISTS photos (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
+    caption VARCHAR(100),
+    photo_url VARCHAR(50) NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- CREATE comments TABLE
+CREATE TABLE IF NOT EXISTS comments (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    photo_id INTEGER REFERENCES photos(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
+-- CREATE SocialMedia TABLE
+CREATE TABLE IF NOT EXISTS social_media (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    social_media_url VARCHAR(50) NOT NULL,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
