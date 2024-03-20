@@ -7,13 +7,14 @@ import (
 	commentrepository "final-project/repository/comment"
 	photorepository "final-project/repository/photo"
 	commentservice "final-project/service/comment"
+	"log/slog"
 	"net/http"
 )
 
-func InitCommentRoutes(r *http.ServeMux, db *sql.DB) {
+func InitCommentRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	commentRepo := commentrepository.New(db)
 	photoRepo := photorepository.New(db)
-	service := commentservice.New(commentRepo, photoRepo, db)
+	service := commentservice.New(commentRepo, photoRepo, db, logger)
 	controller := controller.NewCommentController(service)
 
 	r.Handle("POST /comments", middleware.Auth(http.HandlerFunc(controller.Create)))

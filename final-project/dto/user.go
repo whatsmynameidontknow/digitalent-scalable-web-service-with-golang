@@ -85,17 +85,25 @@ func (u UserRequest) ValidateUpdate() error {
 		errs = errors.Join(errs, errors.New("username can't be empty"))
 	}
 
-	if u.Password == "" {
-		errs = errors.Join(errs, errors.New("password can't be empty"))
+	// if u.Password == "" {
+	// 	errs = errors.Join(errs, errors.New("password can't be empty"))
+	// }
+
+	// if len(u.Password) < 6 {
+	// 	errs = errors.Join(errs, errors.New("password must be at least 6 characters"))
+	// }
+
+	// // bcrypt.GenerateFromPassword only accepts at most 72 characters
+	// if len(u.Password) > 72 {
+	// 	errs = errors.Join(errs, errors.New("password must be at most 72 characters"))
+	// }
+
+	if u.Email == "" {
+		errs = errors.Join(errs, errors.New("email can't be empty"))
 	}
 
-	if len(u.Password) < 6 {
-		errs = errors.Join(errs, errors.New("password must be at least 6 characters"))
-	}
-
-	// bcrypt.GenerateFromPassword only accepts at most 72 characters
-	if len(u.Password) > 72 {
-		errs = errors.Join(errs, errors.New("password must be at most 72 characters"))
+	if !isValidEmail(u.Email) {
+		errs = errors.Join(errs, errors.New("invalid email format"))
 	}
 
 	return errs

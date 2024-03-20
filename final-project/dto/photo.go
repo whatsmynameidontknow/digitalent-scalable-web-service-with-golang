@@ -3,7 +3,6 @@ package dto
 import (
 	"errors"
 	"final-project/helper"
-	"fmt"
 	"time"
 )
 
@@ -63,7 +62,6 @@ func (p PhotoRequest) ValidateUpdate() error {
 		errs = errors.Join(errs, errors.New("photo_url can't be empty"))
 	}
 
-	fmt.Println(helper.IsValidURL(p.PhotoURL), p.PhotoURL)
 	if !helper.IsValidURL(p.PhotoURL) {
 		errs = errors.Join(errs, errors.New("invalid photo_url format"))
 	}

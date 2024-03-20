@@ -9,16 +9,18 @@ import (
 	"final-project/model"
 	"final-project/repository"
 	"final-project/service"
+	"log/slog"
 	"net/http"
 )
 
 type socialMediaService struct {
 	socialMediaRepo repository.SocialMediaRepository
 	db              *sql.DB
+	logger          *slog.Logger
 }
 
-func New(socialMediaRepo repository.SocialMediaRepository, db *sql.DB) service.SocialMediaService {
-	return &socialMediaService{socialMediaRepo, db}
+func New(socialMediaRepo repository.SocialMediaRepository, db *sql.DB, logger *slog.Logger) service.SocialMediaService {
+	return &socialMediaService{socialMediaRepo, db, logger}
 }
 
 func (s *socialMediaService) Create(ctx context.Context, data dto.SocialMediaRequest) (dto.SocialMediaCreateResponse, error) {
@@ -29,6 +31,7 @@ func (s *socialMediaService) Create(ctx context.Context, data dto.SocialMediaReq
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -40,6 +43,7 @@ func (s *socialMediaService) Create(ctx context.Context, data dto.SocialMediaReq
 
 	socialMedia, err = s.socialMediaRepo.Create(ctx, socialMedia)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Create")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -59,6 +63,7 @@ func (s *socialMediaService) GetAll(ctx context.Context) ([]dto.SocialMediaRespo
 
 	socialMedias, err := s.socialMediaRepo.FindAll(ctx)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.FindAll")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -81,32 +86,29 @@ func (s *socialMediaService) GetAll(ctx context.Context) ([]dto.SocialMediaRespo
 	return resp, nil
 }
 
-func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.SocialMediaRequest) (dto.SocialMediaUpdateResponse, error) {
-	var (
-		resp dto.SocialMediaUpdateResponse
-		err  error
-	)
+func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.SocialMediaRequest) (resp dto.SocialMediaUpdateResponse, err error) {
+	var socialMedia model.SocialMedia
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	defer helper.RollbackOrCommit(tx, &err)
 
-	socialMedia := model.SocialMedia{
-		ID:     id,
-		UserID: uint64(userID),
-		Name:   data.Name,
-		URL:    data.URL,
-	}
+	socialMedia.ID = id
+	socialMedia.Name = data.Name
+	socialMedia.URL = data.URL
 
 	socialMedia, err = s.socialMediaRepo.Update(ctx, tx, socialMedia)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
 			return resp, helper.NewResponseError(helper.ErrSocialMediaNotFound, http.StatusNotFound)
 		}
@@ -114,6 +116,7 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 	}
 
 	if socialMedia.UserID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the social media", "cause", "socialMedia.UserID != uint64(userID)")
 		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 
@@ -128,20 +131,23 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 	return resp, nil
 }
 
-func (s *socialMediaService) Delete(ctx context.Context, id uint64) error {
+func (s *socialMediaService) Delete(ctx context.Context, id uint64) (err error) {
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	defer helper.RollbackOrCommit(tx, &err)
 
 	ownerID, err := s.socialMediaRepo.Delete(ctx, tx, id)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
 			return helper.NewResponseError(helper.ErrSocialMediaNotFound, http.StatusNotFound)
 		}
@@ -149,6 +155,7 @@ func (s *socialMediaService) Delete(ctx context.Context, id uint64) error {
 	}
 
 	if ownerID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the social media", "cause", "ownerID != uint64(userID)")
 		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 

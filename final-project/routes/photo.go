@@ -6,12 +6,13 @@ import (
 	"final-project/middleware"
 	photorepository "final-project/repository/photo"
 	photoservice "final-project/service/photo"
+	"log/slog"
 	"net/http"
 )
 
-func InitPhotoRoutes(r *http.ServeMux, db *sql.DB) {
+func InitPhotoRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	repo := photorepository.New(db)
-	service := photoservice.New(repo, db)
+	service := photoservice.New(repo, db, logger)
 	controller := controller.NewPhotoController(service)
 
 	r.Handle("POST /photos", middleware.Auth(http.HandlerFunc(controller.Create)))

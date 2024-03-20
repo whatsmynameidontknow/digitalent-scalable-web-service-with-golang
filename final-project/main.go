@@ -4,6 +4,7 @@ import (
 	"context"
 	"final-project/lib/config"
 	"final-project/lib/database"
+	"final-project/lib/logging"
 	"final-project/middleware"
 	"final-project/routes"
 	"fmt"
@@ -16,35 +17,36 @@ import (
 )
 
 func main() {
+	logger := logging.New(os.Stdout)
 	conf, err := config.Load("config.json")
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error(), "cause", "config.Load")
 		os.Exit(1)
 	}
 
 	db, err := database.New(conf.DB)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err.Error(), "cause", "database.New")
 		os.Exit(1)
 	}
 
 	r := http.NewServeMux()
 
 	{
-		routes.InitUserRoutes(r, db)
-		routes.InitPhotoRoutes(r, db)
-		routes.InitCommentRoutes(r, db)
-		routes.InitSocialMediaRoutes(r, db)
+		routes.InitUserRoutes(r, db, logger)
+		routes.InitPhotoRoutes(r, db, logger)
+		routes.InitCommentRoutes(r, db, logger)
+		routes.InitSocialMediaRoutes(r, db, logger)
 	}
 
 	server := new(http.Server)
 	server.Addr = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
-	server.Handler = middleware.Recover(r)
+	server.Handler = middleware.Recover(middleware.Logging(r))
 
-	fmt.Printf("Server started at %s\n", server.Addr)
+	logger.Info("Starting server...", "addr", server.Addr)
 	go func() {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Println(err)
+			logger.Error(err.Error(), "cause", "server.ListenAndServe")
 			os.Exit(1)
 		}
 	}()
@@ -53,6 +55,9 @@ func main() {
 	defer cancel()
 	<-ctx.Done()
 
-	fmt.Println("Shutting down server...")
-	server.Shutdown(ctx)
+	logger.Info("Shutting down server...", "addr", server.Addr)
+	err = server.Shutdown(ctx)
+	if err != nil {
+		logger.Error(err.Error(), "cause", "server.Shutdown")
+	}
 }

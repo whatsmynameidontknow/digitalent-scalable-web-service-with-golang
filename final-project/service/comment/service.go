@@ -9,6 +9,7 @@ import (
 	"final-project/model"
 	"final-project/repository"
 	"final-project/service"
+	"log/slog"
 	"net/http"
 )
 
@@ -16,10 +17,11 @@ type commentService struct {
 	commentRepo repository.CommentRepository
 	photoRepo   repository.PhotoRepository
 	db          *sql.DB
+	logger      *slog.Logger
 }
 
-func New(commentRepo repository.CommentRepository, photoRepo repository.PhotoRepository, db *sql.DB) service.CommentService {
-	return &commentService{commentRepo, photoRepo, db}
+func New(commentRepo repository.CommentRepository, photoRepo repository.PhotoRepository, db *sql.DB, logger *slog.Logger) service.CommentService {
+	return &commentService{commentRepo, photoRepo, db, logger}
 }
 
 func (s *commentService) Create(ctx context.Context, data dto.CommentRequest) (dto.CommentCreateResponse, error) {
@@ -30,11 +32,13 @@ func (s *commentService) Create(ctx context.Context, data dto.CommentRequest) (d
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	_, err = s.photoRepo.FindByID(ctx, data.PhotoID)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.FindByID")
 		if errors.Is(err, sql.ErrNoRows) {
 			return resp, helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
 		}
@@ -49,6 +53,7 @@ func (s *commentService) Create(ctx context.Context, data dto.CommentRequest) (d
 
 	comment, err = s.commentRepo.Create(ctx, comment)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Create")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -68,6 +73,7 @@ func (s *commentService) GetAll(ctx context.Context) ([]dto.CommentResponse, err
 
 	comments, err := s.commentRepo.FindAll(ctx)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.FindAll")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -97,27 +103,28 @@ func (s *commentService) GetAll(ctx context.Context) ([]dto.CommentResponse, err
 	return resp, nil
 }
 
-func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.CommentRequest) (dto.CommentUpdateResponse, error) {
-	var (
-		comment model.Comment
-		resp    dto.CommentUpdateResponse
-	)
+func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.CommentRequest) (resp dto.CommentUpdateResponse, err error) {
+	var comment model.Comment
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	defer helper.RollbackOrCommit(tx, &err)
 
-	comment.Message = data.Message
 	comment.ID = commentID
+	comment.Message = data.Message
+
 	comment, err = s.commentRepo.Update(ctx, tx, comment)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
 			return resp, helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
 		}
@@ -125,6 +132,7 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	}
 
 	if comment.UserID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the comment", "cause", "comment.UserID != uint64(userID)")
 		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 
@@ -139,20 +147,23 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	return resp, nil
 }
 
-func (s *commentService) Delete(ctx context.Context, commentID uint64) error {
+func (s *commentService) Delete(ctx context.Context, commentID uint64) (err error) {
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	defer helper.RollbackOrCommit(tx, &err)
 
 	ownerID, err := s.commentRepo.Delete(ctx, tx, commentID)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
 			return helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
 		}
@@ -160,6 +171,7 @@ func (s *commentService) Delete(ctx context.Context, commentID uint64) error {
 	}
 
 	if ownerID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the comment", "cause", "ownerID != uint64(userID)")
 		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 

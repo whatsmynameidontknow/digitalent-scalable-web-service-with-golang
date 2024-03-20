@@ -2,6 +2,7 @@ package helper
 
 import (
 	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -13,7 +14,7 @@ func GenerateJWT(userID uint64) (string, error) {
 		"exp": time.Now().Add(15 * time.Minute).Unix(),
 	})
 
-	return t.SignedString([]byte("secret"))
+	return t.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
 
 func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
@@ -21,7 +22,7 @@ func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return []byte("secret"), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil {
 		return nil, err

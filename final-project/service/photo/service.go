@@ -9,16 +9,18 @@ import (
 	"final-project/model"
 	"final-project/repository"
 	"final-project/service"
+	"log/slog"
 	"net/http"
 )
 
 type photoService struct {
 	photoRepo repository.PhotoRepository
 	db        *sql.DB
+	logger    *slog.Logger
 }
 
-func New(photoRepo repository.PhotoRepository, db *sql.DB) service.PhotoService {
-	return &photoService{photoRepo, db}
+func New(photoRepo repository.PhotoRepository, db *sql.DB, logger *slog.Logger) service.PhotoService {
+	return &photoService{photoRepo, db, logger}
 }
 
 func (s *photoService) Create(ctx context.Context, data dto.PhotoRequest) (dto.PhotoCreateResponse, error) {
@@ -29,6 +31,7 @@ func (s *photoService) Create(ctx context.Context, data dto.PhotoRequest) (dto.P
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -45,6 +48,7 @@ func (s *photoService) Create(ctx context.Context, data dto.PhotoRequest) (dto.P
 
 	photo, err = s.photoRepo.Create(ctx, photo)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Create")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -68,6 +72,7 @@ func (s *photoService) GetAll(ctx context.Context) ([]dto.PhotoResponse, error) 
 
 	photos, err := s.photoRepo.FindAll(ctx)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.FindAll")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -100,6 +105,7 @@ func (s *photoService) GetAll(ctx context.Context) ([]dto.PhotoResponse, error) 
 func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequest) (resp dto.PhotoUpdateResponse, err error) {
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
@@ -114,12 +120,14 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	}
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	defer helper.RollbackOrCommit(tx, &err)
 
 	photo, err = s.photoRepo.Update(ctx, tx, photo)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
 			return resp, helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
 		}
@@ -127,6 +135,7 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	}
 
 	if photo.UserID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the photo", "cause", "photo.UserID != uint64(userID)")
 		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 
@@ -142,20 +151,23 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	return resp, nil
 }
 
-func (s *photoService) Delete(ctx context.Context, id uint64) error {
+func (s *photoService) Delete(ctx context.Context, id uint64) (err error) {
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
+		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	defer helper.RollbackOrCommit(tx, &err)
 
 	ownerID, err := s.photoRepo.Delete(ctx, tx, id)
 	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
 			return helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
 		}
@@ -163,6 +175,7 @@ func (s *photoService) Delete(ctx context.Context, id uint64) error {
 	}
 
 	if ownerID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the photo", "cause", "ownerID != uint64(userID)")
 		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 

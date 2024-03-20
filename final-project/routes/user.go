@@ -6,12 +6,13 @@ import (
 	"final-project/middleware"
 	userrepository "final-project/repository/user"
 	userservice "final-project/service/user"
+	"log/slog"
 	"net/http"
 )
 
-func InitUserRoutes(r *http.ServeMux, db *sql.DB) {
+func InitUserRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	userRepo := userrepository.New(db)
-	userService := userservice.New(userRepo)
+	userService := userservice.New(userRepo, logger)
 	userController := controller.NewUserController(userService)
 
 	r.Handle("PUT /users", middleware.Auth(http.HandlerFunc(userController.Update)))

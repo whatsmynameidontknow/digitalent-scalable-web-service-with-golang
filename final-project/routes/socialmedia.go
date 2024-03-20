@@ -6,12 +6,13 @@ import (
 	"final-project/middleware"
 	socialmediarepository "final-project/repository/socialmedia"
 	socialmediaservice "final-project/service/socialmedia"
+	"log/slog"
 	"net/http"
 )
 
-func InitSocialMediaRoutes(r *http.ServeMux, db *sql.DB) {
+func InitSocialMediaRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	socialMediaRepo := socialmediarepository.New(db)
-	socialMediaService := socialmediaservice.New(socialMediaRepo, db)
+	socialMediaService := socialmediaservice.New(socialMediaRepo, db, logger)
 	socialMediaController := controller.NewSocialMediaController(socialMediaService)
 
 	r.Handle("POST /socialmedias", middleware.Auth(http.HandlerFunc(socialMediaController.Create)))
