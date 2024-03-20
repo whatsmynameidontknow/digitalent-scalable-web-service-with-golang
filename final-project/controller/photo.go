@@ -21,7 +21,7 @@ func NewPhotoController(photoService service.PhotoService) *photoController {
 func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.PhotoRequest
-		resp helper.Response[dto.PhotoCreateResponse]
+		resp = helper.NewResponse[dto.PhotoCreateResponse](helper.PhotoCreate)
 	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -51,7 +51,7 @@ func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *photoController) GetAll(w http.ResponseWriter, r *http.Request) {
-	var resp helper.Response[[]dto.PhotoResponse]
+	var resp = helper.NewResponse[[]dto.PhotoResponse](helper.PhotoGetAll)
 
 	photos, err := c.photoService.GetAll(r.Context())
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *photoController) GetAll(w http.ResponseWriter, r *http.Request) {
 func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.PhotoRequest
-		resp helper.Response[dto.PhotoUpdateResponse]
+		resp = helper.NewResponse[dto.PhotoUpdateResponse](helper.PhotoUpdate)
 	)
 
 	photoIDStr := r.PathValue("photoID")
@@ -107,7 +107,7 @@ func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *photoController) Delete(w http.ResponseWriter, r *http.Request) {
-	var resp helper.Response[any]
+	var resp = helper.NewResponse[any](helper.PhotoDelete)
 
 	photoIDStr := r.PathValue("photoID")
 	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)

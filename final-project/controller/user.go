@@ -22,7 +22,7 @@ func NewUserController(userService service.UserService) *userController {
 func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.UserRequest
-		resp helper.Response[dto.UserCreateResponse]
+		resp = helper.NewResponse[dto.UserCreateResponse](helper.UserRegister)
 	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -54,7 +54,7 @@ func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
 func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.UserRequest
-		resp helper.Response[dto.UserLoginResponse]
+		resp = helper.NewResponse[dto.UserLoginResponse](helper.UserLogin)
 	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -86,7 +86,7 @@ func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
 func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.UserRequest
-		resp helper.Response[dto.UserUpdateResponse]
+		resp = helper.NewResponse[dto.UserUpdateResponse](helper.UserUpdate)
 	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -116,7 +116,7 @@ func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u *userController) Delete(w http.ResponseWriter, r *http.Request) {
-	var resp helper.Response[dto.DeleteResponse]
+	var resp = helper.NewResponse[any](helper.UserDelete)
 
 	err := u.userService.Delete(r.Context())
 	if err != nil {

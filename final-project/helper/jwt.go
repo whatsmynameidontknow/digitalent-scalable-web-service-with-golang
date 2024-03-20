@@ -28,12 +28,8 @@ func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
 		return nil, err
 	}
 
-	if !t.Valid {
-		return nil, errors.New("invalid token")
-	}
-
 	claims, ok := t.Claims.(jwt.MapClaims)
-	if !ok {
+	if !ok || !t.Valid {
 		return nil, errors.New("invalid token")
 	}
 

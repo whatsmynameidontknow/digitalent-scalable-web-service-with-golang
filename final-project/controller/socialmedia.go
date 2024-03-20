@@ -21,7 +21,7 @@ func NewSocialMediaController(socialMediaService service.SocialMediaService) *so
 func (c *socialMediaController) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.SocialMediaRequest
-		resp helper.Response[dto.SocialMediaCreateResponse]
+		resp = helper.NewResponse[dto.SocialMediaCreateResponse](helper.SocialMediaCreate)
 	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -47,11 +47,11 @@ func (c *socialMediaController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp.Success(true).Data(socialMedia).Code(http.StatusCreated)
+	resp.Success(true).Data(socialMedia).Code(http.StatusCreated).Send(w)
 }
 
 func (c *socialMediaController) GetAll(w http.ResponseWriter, r *http.Request) {
-	var resp helper.Response[[]dto.SocialMediaResponse]
+	var resp = helper.NewResponse[[]dto.SocialMediaResponse](helper.SocialMediaGetAll)
 
 	socialMedias, err := c.socialMediaService.GetAll(r.Context())
 	if err != nil {
@@ -70,7 +70,7 @@ func (c *socialMediaController) GetAll(w http.ResponseWriter, r *http.Request) {
 func (c *socialMediaController) Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.SocialMediaRequest
-		resp helper.Response[dto.SocialMediaUpdateResponse]
+		resp = helper.NewResponse[dto.SocialMediaUpdateResponse](helper.SocialMediaUpdate)
 	)
 
 	socialMediaIDStr := r.PathValue("socialMediaID")
@@ -107,7 +107,7 @@ func (c *socialMediaController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *socialMediaController) Delete(w http.ResponseWriter, r *http.Request) {
-	var resp helper.Response[any]
+	var resp = helper.NewResponse[any](helper.SocialMediaDelete)
 
 	socialMediaIDStr := r.PathValue("socialMediaID")
 	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)

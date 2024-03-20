@@ -100,7 +100,7 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	defer helper.RollbackOrCommit(tx, &err)
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
 
 	socialMedia.ID = id
 	socialMedia.Name = data.Name
@@ -143,7 +143,7 @@ func (s *socialMediaService) Delete(ctx context.Context, id uint64) (err error) 
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	defer helper.RollbackOrCommit(tx, &err)
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
 
 	ownerID, err := s.socialMediaRepo.Delete(ctx, tx, id)
 	if err != nil {

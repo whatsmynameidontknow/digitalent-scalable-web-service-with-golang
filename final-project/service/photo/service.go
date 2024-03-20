@@ -123,7 +123,7 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	defer helper.RollbackOrCommit(tx, &err)
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
 
 	photo, err = s.photoRepo.Update(ctx, tx, photo)
 	if err != nil {
@@ -163,7 +163,7 @@ func (s *photoService) Delete(ctx context.Context, id uint64) (err error) {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	defer helper.RollbackOrCommit(tx, &err)
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
 
 	ownerID, err := s.photoRepo.Delete(ctx, tx, id)
 	if err != nil {

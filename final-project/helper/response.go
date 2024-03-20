@@ -2,15 +2,23 @@ package helper
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 )
 
 type Response[T any] struct {
-	S    bool     `json:"success"`
-	E    []string `json:"errors"`
-	D    *T       `json:"data"`
-	code int
+	S           bool     `json:"success"`
+	M           string   `json:"message"`
+	E           []string `json:"errors"`
+	D           *T       `json:"data"`
+	code        int
+	responseFor ResponseFor
+}
+
+func NewResponse[T any](responseFor ResponseFor) *Response[T] {
+	fmt.Println(responseFor)
+	return &Response[T]{responseFor: responseFor}
 }
 
 type Sender interface {
@@ -38,6 +46,7 @@ func (r *Response[T]) Code(code int) Sender {
 }
 
 func (r *Response[T]) Send(w http.ResponseWriter) {
+	r.M = responseMessages[r.responseFor](len(r.E))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(r.code)
 	err := json.NewEncoder(w).Encode(r)

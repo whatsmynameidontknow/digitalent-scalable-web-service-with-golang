@@ -117,7 +117,7 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	defer helper.RollbackOrCommit(tx, &err)
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
 
 	comment.ID = commentID
 	comment.Message = data.Message
@@ -159,7 +159,7 @@ func (s *commentService) Delete(ctx context.Context, commentID uint64) (err erro
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	defer helper.RollbackOrCommit(tx, &err)
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
 
 	ownerID, err := s.commentRepo.Delete(ctx, tx, commentID)
 	if err != nil {
