@@ -9,6 +9,7 @@
     "app": {
         "host": "localhost",
         "port": 8080,
-        "jwt_secret": "rahasiadonghehewkwkwowkerenhahauhuyyy"
+        "jwt_secret": "rahasiadonghehewkwkwowkerenhahauhuyyy",
+        "jwt_expires_in": "24h"
     }
 }

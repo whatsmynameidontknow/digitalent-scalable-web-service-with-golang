@@ -24,9 +24,10 @@ func (db DB) ConnectionString() string {
 }
 
 type App struct {
-	Host      string `json:"host"`
-	Port      uint   `json:"port"`
-	JWTSecret string `json:"jwt_secret"`
+	Host         string `json:"host"`
+	Port         uint   `json:"port"`
+	JWTSecret    string `json:"jwt_secret"`
+	JWTExpiresIn string `json:"jwt_expires_in"`
 }
 
 func Load(path string) (Config, error) {
@@ -41,11 +42,6 @@ func Load(path string) (Config, error) {
 	}
 
 	err = json.NewDecoder(confFile).Decode(&conf)
-	if err != nil {
-		return conf, err
-	}
-
-	err = os.Setenv("JWT_SECRET", conf.App.JWTSecret)
 	if err != nil {
 		return conf, err
 	}

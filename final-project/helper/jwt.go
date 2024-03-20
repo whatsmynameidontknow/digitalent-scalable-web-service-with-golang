@@ -2,19 +2,31 @@ package helper
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
+var (
+	JWTSecret    []byte
+	JWTExpiresIn time.Duration
+)
+
+func GetJWTExpiresIn(d string, default_ time.Duration) time.Duration {
+	duration, err := time.ParseDuration(d)
+	if err != nil {
+		return default_
+	}
+	return duration
+}
+
 func GenerateJWT(userID uint64) (string, error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": userID,
-		"exp": time.Now().Add(15 * time.Minute).Unix(),
+		"exp": time.Now().Add(JWTExpiresIn).Unix(),
 	})
 
-	return t.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	return t.SignedString(JWTSecret)
 }
 
 func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
@@ -22,7 +34,7 @@ func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
-		return []byte(os.Getenv("JWT_SECRET")), nil
+		return JWTSecret, nil
 	})
 	if err != nil {
 		return nil, err

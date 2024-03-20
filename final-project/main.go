@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"final-project/helper"
 	"final-project/lib/config"
 	"final-project/lib/database"
 	"final-project/lib/logging"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -23,6 +25,9 @@ func main() {
 		logger.Error(err.Error(), "cause", "config.Load")
 		os.Exit(1)
 	}
+
+	helper.JWTSecret = []byte(conf.App.JWTSecret)
+	helper.JWTExpiresIn = helper.GetJWTExpiresIn(conf.App.JWTExpiresIn, time.Hour)
 
 	db, err := database.New(conf.DB)
 	if err != nil {
