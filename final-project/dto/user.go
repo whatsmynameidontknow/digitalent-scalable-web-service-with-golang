@@ -2,7 +2,7 @@ package dto
 
 import (
 	"errors"
-	"regexp"
+	"final-project/helper"
 	"time"
 )
 
@@ -20,7 +20,7 @@ func (u UserRequest) ValidateCreate() error {
 		errs = errors.Join(errs, errors.New("email can't be empty"))
 	}
 
-	if !isValidEmail(u.Email) {
+	if !helper.IsValidEmail(u.Email) {
 		errs = errors.Join(errs, errors.New("invalid email format"))
 	}
 
@@ -50,11 +50,6 @@ func (u UserRequest) ValidateCreate() error {
 	}
 
 	return errs
-}
-
-func isValidEmail(email string) bool {
-	re := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	return re.MatchString(email)
 }
 
 type UserCreateResponse struct {
@@ -97,7 +92,7 @@ func (u UserRequest) ValidateUpdate() error {
 		errs = errors.Join(errs, errors.New("email can't be empty"))
 	}
 
-	if !isValidEmail(u.Email) {
+	if !helper.IsValidEmail(u.Email) {
 		errs = errors.Join(errs, errors.New("invalid email format"))
 	}
 
