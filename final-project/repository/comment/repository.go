@@ -23,9 +23,17 @@ func (r *commentRepository) Create(ctx context.Context, data model.Comment) (mod
 	var (
 		comment model.Comment
 		now     = time.Now()
-		stmt    = `INSERT INTO
-		comments(message, photo_id, user_id, created_at, updated_at)
-		VALUES($1, $2, $3, $4, $5) RETURNING id, message, photo_id, user_id, created_at`
+		stmt    = `
+		INSERT INTO
+			comment(message, photo_id, user_id, created_at, updated_at)
+			VALUES($1, $2, $3, $4, $5) 
+		RETURNING
+			id,
+			message,
+			photo_id,
+			user_id,
+			created_at
+		`
 	)
 
 	row := r.db.QueryRowContext(ctx, stmt, data.Message, data.PhotoID, data.UserID, now, now)
@@ -60,9 +68,9 @@ func (r *commentRepository) FindAll(ctx context.Context) ([]model.Comment, error
 			p.caption,
 			p.photo_url,
 			p.user_id
-		FROM comments c
-		JOIN users u ON c.user_id = u.id
-		JOIN photos p ON c.photo_id = p.id
+		FROM comment c
+		INNER JOIN user u ON c.user_id=u.id
+		INNER JOIN photo p ON c.photo_id=p.id
 		ORDER BY c.created_at DESC
 		`
 	)
@@ -98,7 +106,20 @@ func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.C
 	var (
 		comment model.Comment
 		now     = time.Now()
-		stmt    = `UPDATE comments SET message=$1, updated_at=$2 WHERE id=$3 RETURNING id, message, photo_id, user_id, updated_at`
+		stmt    = `
+		UPDATE 
+			comment
+		SET 
+			message=$1, 
+			updated_at=$2
+		WHERE id=$3
+		RETURNING 
+			id, 
+			message, 
+			photo_id, 
+			user_id, 
+			updated_at
+		`
 	)
 
 	fmt.Println(data.Message, data.ID)
@@ -119,7 +140,13 @@ func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.C
 func (r *commentRepository) Delete(ctx context.Context, tx *sql.Tx, id uint64) (uint64, error) {
 	var (
 		ownerID uint64
-		stmt    = `DELETE FROM comments WHERE id=$1 RETURNING user_id`
+		stmt    = `
+		DELETE FROM
+			comment
+		WHERE id=$1
+		RETURNING
+			user_id
+		`
 	)
 
 	row := tx.QueryRowContext(ctx, stmt, id)

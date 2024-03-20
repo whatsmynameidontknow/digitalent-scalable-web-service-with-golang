@@ -115,7 +115,7 @@ func (u *userService) Delete(ctx context.Context) error {
 		return helper.ErrInternal
 	}
 
-	err := u.userRepo.Delete(ctx, uint(userID))
+	err := u.userRepo.Delete(ctx, uint64(userID))
 	if err != nil {
 		return err
 	}

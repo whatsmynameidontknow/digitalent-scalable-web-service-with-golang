@@ -22,7 +22,16 @@ func (r *userRepository) Create(ctx context.Context, data model.User) (model.Use
 	var (
 		user model.User
 		now  = time.Now()
-		stmt = `INSERT INTO users(username, email, password, age, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, username, email, age`
+		stmt = `
+		INSERT INTO
+			user(username, email, password, age, created_at, updated_at)
+			VALUES($1, $2, $3, $4, $5, $6)
+		RETURNING
+			id,
+			username,
+			email,
+			age
+		`
 	)
 
 	row := r.db.QueryRowContext(ctx, stmt, data.Username, data.Email, data.Password, data.Age, now, now)
@@ -41,7 +50,13 @@ func (r *userRepository) Create(ctx context.Context, data model.User) (model.Use
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (model.User, error) {
 	var (
 		user model.User
-		stmt = `SELECT id, password FROM users WHERE email = $1`
+		stmt = `
+		SELECT
+			id,
+			password
+		FROM user
+		WHERE email=$1
+		`
 	)
 
 	row := r.db.QueryRowContext(ctx, stmt, email)
@@ -61,7 +76,21 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 	var (
 		user model.User
 		now  = time.Now()
-		stmt = `UPDATE users SET email=$1, password=$2, updated_at=$3 WHERE id=$4 RETURNING id, username, email, age, updated_at`
+		stmt = `
+		UPDATE
+			user
+		SET
+			email=$1,
+			password=$2,
+			updated_at=$3
+		WHERE id=$4
+		RETURNING
+			id,
+			username,
+			email,
+			age,
+			updated_at
+		`
 	)
 
 	row := r.db.QueryRowContext(ctx, stmt, data.Email, data.Password, now, data.ID)
@@ -77,9 +106,13 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 	return user, nil
 }
 
-func (r *userRepository) Delete(ctx context.Context, userID uint) error {
+func (r *userRepository) Delete(ctx context.Context, userID uint64) error {
 	var (
-		stmt = `DELETE FROM users WHERE id=$1`
+		stmt = `
+		DELETE FROM
+			user
+		WHERE id=$1
+		`
 	)
 	res, err := r.db.ExecContext(ctx, stmt, userID)
 	if err != nil {

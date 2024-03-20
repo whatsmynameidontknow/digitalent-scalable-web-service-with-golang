@@ -20,9 +20,18 @@ func (r *photoRepository) Create(ctx context.Context, data model.Photo) (model.P
 	var (
 		photo model.Photo
 		now   = time.Now()
-		stmt  = `INSERT INTO 
-		photos(title, caption, photo_url, user_id, created_at, updated_at)
-		VALUES($1, $2, $3, $4, $5, $6) RETURNING id, title, caption, photo_url, user_id, created_at`
+		stmt  = `
+		INSERT INTO 
+			photo(title, caption, photo_url, user_id, created_at, updated_at)
+			VALUES($1, $2, $3, $4, $5, $6)
+		RETURNING
+			id, 
+			title, 
+			caption, 
+			photo_url, 
+			user_id, 
+			created_at
+		`
 	)
 
 	row := r.db.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, data.UserID, now, now)
@@ -52,8 +61,8 @@ func (r *photoRepository) FindAll(ctx context.Context) ([]model.Photo, error) {
 			p.updated_at,
 			u.email,
 			u.username
-		FROM photos p
-		INNER JOIN users u ON p.user_id=u.id`
+		FROM photo p
+		INNER JOIN user u ON p.user_id=u.id`
 	)
 
 	rows, err := r.db.QueryContext(ctx, stmt)
@@ -78,14 +87,21 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 		now   = time.Now()
 		stmt  = `
 		UPDATE 
-			photos 
+			photo
 		SET 
 			title=$1,
 			caption=$2,
 			photo_url=$3,
 			updated_at=$4
 		WHERE id=$5
-		RETURNING id, title, caption, photo_url, user_id, updated_at`
+		RETURNING 
+			id, 
+			title, 
+			caption, 
+			photo_url, 
+			user_id, 
+			updated_at
+		`
 	)
 
 	row := tx.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, now, data.ID)
@@ -104,7 +120,13 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 func (r *photoRepository) Delete(ctx context.Context, tx *sql.Tx, id uint64) (uint64, error) {
 	var (
 		ownerID uint64
-		stmt    = `DELETE FROM photos WHERE id=$1 RETURNING user_id`
+		stmt    = `
+		DELETE FROM
+			photo
+		WHERE id=$1
+		RETURNING
+			user_id
+		`
 	)
 
 	row := tx.QueryRowContext(ctx, stmt, id)
@@ -134,8 +156,8 @@ func (r *photoRepository) FindByID(ctx context.Context, id uint64) (model.Photo,
 			p.updated_at,
 			u.email,
 			u.username
-		FROM photos p
-		INNER JOIN users u ON p.user_id=u.id
+		FROM photo p
+		INNER JOIN user u ON p.user_id=u.id
 		WHERE p.id=$1`
 	)
 

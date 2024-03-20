@@ -1,5 +1,5 @@
--- CREATE users TABLE
-CREATE TABLE IF NOT EXISTS users (
+-- CREATE user TABLE
+CREATE TABLE IF NOT EXISTS user (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(50) UNIQUE NOT NULL,
@@ -9,36 +9,36 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_user_username ON user(username);
+CREATE INDEX IF NOT EXISTS idx_user_email ON user(email);
 
--- CREATE photos TABLE
-CREATE TABLE IF NOT EXISTS photos (
+-- CREATE photo TABLE
+CREATE TABLE IF NOT EXISTS photo (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title VARCHAR(50) NOT NULL,
     caption VARCHAR(100),
     photo_url VARCHAR(50) NOT NULL,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES user(id) ON DELETE CASCADE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
 
--- CREATE comments TABLE
-CREATE TABLE IF NOT EXISTS comments (
+-- CREATE comment TABLE
+CREATE TABLE IF NOT EXISTS comment (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    photo_id INTEGER REFERENCES photos(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES user(id) ON DELETE CASCADE,
+    photo_id INTEGER REFERENCES photo(id) ON DELETE CASCADE,
     message TEXT NOT NULL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
 
--- CREATE SocialMedia TABLE
+-- CREATE social_media TABLE
 CREATE TABLE IF NOT EXISTS social_media (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     social_media_url VARCHAR(50) NOT NULL,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES user(id) ON DELETE CASCADE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
