@@ -129,3 +129,27 @@ func (c *photoController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	resp.Success(true).Code(http.StatusOK).Send(w)
 }
+
+func (c *photoController) GetByID(w http.ResponseWriter, r *http.Request) {
+	var resp = helper.NewResponse[dto.PhotoResponse](helper.PhotoGetByID)
+
+	photoIDStr := r.PathValue("photoID")
+	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
+	if err != nil {
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		return
+	}
+
+	photo, err := c.photoService.GetByID(r.Context(), photoID)
+	if err != nil {
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
+		return
+	}
+
+	resp.Data(photo).Success(true).Code(http.StatusOK).Send(w)
+}

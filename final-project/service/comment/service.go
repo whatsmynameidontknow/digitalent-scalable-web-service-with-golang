@@ -177,3 +177,37 @@ func (s *commentService) Delete(ctx context.Context, commentID uint64) (err erro
 
 	return nil
 }
+
+func (s *commentService) GetByID(ctx context.Context, commentID uint64) (dto.CommentResponse, error) {
+	var resp dto.CommentResponse
+
+	comment, err := s.commentRepo.FindByID(ctx, commentID)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.FindByID")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+
+	resp = dto.CommentResponse{
+		ID:        comment.ID,
+		PhotoID:   comment.PhotoID,
+		UserID:    comment.UserID,
+		Message:   comment.Message,
+		CreatedAt: comment.CreatedAt,
+		UpdateAt:  comment.UpdatedAt,
+		User: dto.User{
+			Username: comment.User.Username,
+			Email:    comment.User.Email,
+		},
+		Photo: dto.Photo{
+			Title:    comment.Photo.Title,
+			Caption:  comment.Photo.Caption.String,
+			PhotoURL: comment.Photo.URL,
+			UserID:   comment.Photo.UserID,
+		},
+	}
+
+	return resp, nil
+}

@@ -7,10 +7,10 @@ import (
 )
 
 type UserRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Age      uint64 `json:"age"`
+	Username string `json:"username" example:"budiganteng"`
+	Email    string `json:"email" example:"budi@rocketmail.com"`
+	Password string `json:"password" example:"budigantengbanget123"`
+	Age      uint64 `json:"age" example:"25"`
 }
 
 func (u UserRequest) ValidateCreate() error {
@@ -84,19 +84,6 @@ func (u UserRequest) ValidateUpdate() error {
 	if u.Username == "" {
 		errs = errors.Join(errs, errors.New("username can't be empty"))
 	}
-
-	// if u.Password == "" {
-	// 	errs = errors.Join(errs, errors.New("password can't be empty"))
-	// }
-
-	// if len(u.Password) < 6 {
-	// 	errs = errors.Join(errs, errors.New("password must be at least 6 characters"))
-	// }
-
-	// // bcrypt.GenerateFromPassword only accepts at most 72 characters
-	// if len(u.Password) > 72 {
-	// 	errs = errors.Join(errs, errors.New("password must be at most 72 characters"))
-	// }
 
 	if u.Email == "" {
 		errs = errors.Join(errs, errors.New("email can't be empty"))

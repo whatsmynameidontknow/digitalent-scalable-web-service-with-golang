@@ -26,6 +26,7 @@ type CommentRepository interface {
 	FindAll(context.Context) ([]model.Comment, error)
 	Update(context.Context, *sql.Tx, model.Comment) (model.Comment, error)
 	Delete(context.Context, *sql.Tx, uint64) (uint64, error)
+	FindByID(context.Context, uint64) (model.Comment, error)
 }
 
 type SocialMediaRepository interface {
@@ -33,4 +34,5 @@ type SocialMediaRepository interface {
 	FindAll(context.Context) ([]model.SocialMedia, error)
 	Update(context.Context, *sql.Tx, model.SocialMedia) (model.SocialMedia, error)
 	Delete(context.Context, *sql.Tx, uint64) (uint64, error)
+	FindByID(context.Context, uint64) (model.SocialMedia, error)
 }

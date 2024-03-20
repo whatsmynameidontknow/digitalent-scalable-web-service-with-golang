@@ -19,6 +19,16 @@ func NewUserController(userService service.UserService) *userController {
 	}
 }
 
+// UserRegister godoc
+// @Summary register a new user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body dto.UserRequest true "required body"
+// @Success 201 {object} helper.Response[dto.UserCreateResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /users/register [post]
 func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.UserRequest
@@ -51,6 +61,16 @@ func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
 	resp.Success(true).Data(user).Code(http.StatusCreated).Send(w)
 }
 
+// UserLogin godoc
+// @Summary login user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param request body dto.UserRequest true "required body"
+// @Success 200 {object} helper.Response[dto.UserLoginResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /users/login [post]
 func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.UserRequest

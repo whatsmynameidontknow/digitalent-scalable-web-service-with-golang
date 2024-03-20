@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"final-project/docs"
 	"final-project/helper"
 	"final-project/lib/config"
 	"final-project/lib/database"
@@ -16,8 +17,13 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
+// @title Hacktiv8-Golang final-project
+// @version 1.0
+// @description submission for final-project
+// @BasePath /
 func main() {
 	logger := logging.New(os.Stdout)
 	conf, err := config.Load("config.json")
@@ -34,19 +40,30 @@ func main() {
 		logger.Error(err.Error(), "cause", "database.New")
 		os.Exit(1)
 	}
+	defer db.Close()
 
-	r := http.NewServeMux()
+	api := http.NewServeMux()
 
 	{
-		routes.InitUserRoutes(r, db, logger)
-		routes.InitPhotoRoutes(r, db, logger)
-		routes.InitCommentRoutes(r, db, logger)
-		routes.InitSocialMediaRoutes(r, db, logger)
+		routes.InitUserRoutes(api, db, logger)
+		routes.InitPhotoRoutes(api, db, logger)
+		routes.InitCommentRoutes(api, db, logger)
+		routes.InitSocialMediaRoutes(api, db, logger)
+	}
+
+	r := http.NewServeMux()
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
+
+	{
+		r.Handle("/", middleware.Logging(api))
+		r.HandleFunc("GET /swagger/", httpSwagger.Handler(
+			httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", conf.App.Host, conf.App.Port)),
+		))
 	}
 
 	server := new(http.Server)
 	server.Addr = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
-	server.Handler = middleware.Recover(middleware.Logging(r))
+	server.Handler = middleware.Recover(r)
 
 	logger.Info("Starting server...", "addr", server.Addr)
 	go func() {

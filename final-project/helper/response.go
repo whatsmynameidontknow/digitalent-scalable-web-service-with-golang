@@ -2,7 +2,6 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -17,7 +16,6 @@ type Response[T any] struct {
 }
 
 func NewResponse[T any](responseFor ResponseFor) *Response[T] {
-	fmt.Println(responseFor)
 	return &Response[T]{responseFor: responseFor}
 }
 

@@ -17,6 +17,7 @@ type PhotoService interface {
 	GetAll(context.Context) ([]dto.PhotoResponse, error)
 	Update(context.Context, uint64, dto.PhotoRequest) (dto.PhotoUpdateResponse, error)
 	Delete(context.Context, uint64) error
+	GetByID(context.Context, uint64) (dto.PhotoResponse, error)
 }
 
 type CommentService interface {
@@ -24,6 +25,7 @@ type CommentService interface {
 	GetAll(context.Context) ([]dto.CommentResponse, error)
 	Update(context.Context, uint64, dto.CommentRequest) (dto.CommentUpdateResponse, error)
 	Delete(context.Context, uint64) error
+	GetByID(context.Context, uint64) (dto.CommentResponse, error)
 }
 
 type SocialMediaService interface {
@@ -31,4 +33,5 @@ type SocialMediaService interface {
 	GetAll(context.Context) ([]dto.SocialMediaResponse, error)
 	Update(context.Context, uint64, dto.SocialMediaRequest) (dto.SocialMediaUpdateResponse, error)
 	Delete(context.Context, uint64) error
+	GetByID(context.Context, uint64) (dto.SocialMediaResponse, error)
 }

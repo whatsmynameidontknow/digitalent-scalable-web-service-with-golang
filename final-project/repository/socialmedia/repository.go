@@ -138,3 +138,37 @@ func (r *socialMediaRepository) Delete(ctx context.Context, tx *sql.Tx, id uint6
 
 	return ownerID, nil
 }
+
+func (r *socialMediaRepository) FindByID(ctx context.Context, id uint64) (model.SocialMedia, error) {
+	var (
+		socialMedia model.SocialMedia
+		stmt        = `
+		SELECT
+			s.id,
+			s.name,
+			s.url,
+			s.user_id,
+			s.created_at,
+			s.updated_at,
+			u.id,
+			u.username,
+			u.email
+		FROM social_media s
+		INNER JOIN user_ u ON s.user_id = u.id
+		WHERE s.id=$1
+		ORDER BY created_at DESC
+		`
+	)
+
+	row := r.db.QueryRowContext(ctx, stmt, id)
+	if err := row.Err(); err != nil {
+		return socialMedia, err
+	}
+
+	err := row.Scan(&socialMedia.ID, &socialMedia.Name, &socialMedia.URL, &socialMedia.UserID, &socialMedia.CreatedAt, &socialMedia.UpdatedAt, &socialMedia.User.ID, &socialMedia.User.Username, &socialMedia.User.Email)
+	if err != nil {
+		return socialMedia, err
+	}
+
+	return socialMedia, nil
+}

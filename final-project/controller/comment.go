@@ -128,3 +128,27 @@ func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	resp.Success(true).Code(http.StatusOK).Send(w)
 }
+
+func (c *commentController) GetByID(w http.ResponseWriter, r *http.Request) {
+	var resp = helper.NewResponse[dto.CommentResponse](helper.CommentGetByID)
+
+	commentIDStr := r.PathValue("commentID")
+	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
+	if err != nil {
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		return
+	}
+
+	comment, err := c.commentService.GetByID(r.Context(), commentID)
+	if err != nil {
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
+		return
+	}
+
+	resp.Data(comment).Success(true).Code(http.StatusOK).Send(w)
+}

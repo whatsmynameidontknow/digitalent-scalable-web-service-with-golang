@@ -101,11 +101,7 @@ func (s *userService) Update(ctx context.Context, data dto.UserRequest) (dto.Use
 	}
 	user.ID = uint64(userID)
 	user.Email = data.Email
-	user.Password, err = helper.HashPassword(data.Password)
-	if err != nil {
-		s.logger.ErrorContext(ctx, err.Error(), "cause", "helper.HashPassword")
-		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
-	}
+	user.Username = data.Username
 
 	user, err = s.userRepo.Update(ctx, user)
 	if err != nil {

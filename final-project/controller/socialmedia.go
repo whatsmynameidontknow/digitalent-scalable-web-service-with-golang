@@ -129,3 +129,27 @@ func (c *socialMediaController) Delete(w http.ResponseWriter, r *http.Request) {
 
 	resp.Success(true).Code(http.StatusOK).Send(w)
 }
+
+func (c *socialMediaController) GetByID(w http.ResponseWriter, r *http.Request) {
+	var resp = helper.NewResponse[dto.SocialMediaResponse](helper.SocialMediaGetByID)
+
+	socialMediaIDStr := r.PathValue("socialMediaID")
+	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)
+	if err != nil {
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		return
+	}
+
+	socialMedia, err := c.socialMediaService.GetByID(r.Context(), socialMediaID)
+	if err != nil {
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
+		return
+	}
+
+	resp.Data(socialMedia).Success(true).Code(http.StatusOK).Send(w)
+}

@@ -161,3 +161,42 @@ func (r *commentRepository) Delete(ctx context.Context, tx *sql.Tx, id uint64) (
 
 	return ownerID, nil
 }
+
+func (r *commentRepository) FindByID(ctx context.Context, id uint64) (model.Comment, error) {
+	var (
+		comment model.Comment
+		stmt    = `
+		SELECT
+			c.id,
+			c.message,
+			c.photo_id,
+			c.user_id,
+			c.created_at,
+			c.updated_at,
+			u.id,
+			u.username,
+			u.email,
+			p.id,
+			p.title,
+			p.caption,
+			p.url,
+			p.user_id
+		FROM comment c
+		INNER JOIN user_ u ON c.user_id=u.id
+		INNER JOIN photo p ON c.photo_id=p.id
+		WHERE c.id=$1
+		`
+	)
+
+	row := r.db.QueryRowContext(ctx, stmt, id)
+	if err := row.Err(); err != nil {
+		return comment, err
+	}
+
+	err := row.Scan(&comment.ID, &comment.Message, &comment.PhotoID, &comment.UserID, &comment.CreatedAt, &comment.UpdatedAt, &comment.User.ID, &comment.User.Username, &comment.User.Email, &comment.Photo.ID, &comment.Photo.Title, &comment.Photo.Caption, &comment.Photo.URL, &comment.Photo.UserID)
+	if err != nil {
+		return comment, err
+	}
+
+	return comment, nil
+}

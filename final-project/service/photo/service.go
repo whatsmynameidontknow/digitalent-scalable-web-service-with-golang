@@ -181,3 +181,35 @@ func (s *photoService) Delete(ctx context.Context, id uint64) (err error) {
 
 	return nil
 }
+
+func (s *photoService) GetByID(ctx context.Context, id uint64) (dto.PhotoResponse, error) {
+	var resp dto.PhotoResponse
+
+	photo, err := s.photoRepo.FindByID(ctx, id)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.FindByID")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+
+	resp = dto.PhotoResponse{
+		ID:        photo.ID,
+		Title:     photo.Title,
+		PhotoURL:  photo.URL,
+		UserID:    photo.UserID,
+		CreatedAt: photo.CreatedAt,
+		UpdatedAt: photo.UpdatedAt,
+		User: dto.User{
+			Email:    photo.User.Email,
+			Username: photo.User.Username,
+		},
+	}
+
+	if photo.Caption.Valid {
+		resp.Caption = photo.Caption.String
+	}
+
+	return resp, nil
+}

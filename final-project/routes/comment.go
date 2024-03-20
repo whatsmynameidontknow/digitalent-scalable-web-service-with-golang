@@ -21,4 +21,5 @@ func InitCommentRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	r.Handle("GET /comments", middleware.Auth(http.HandlerFunc(controller.GetAll)))
 	r.Handle("PUT /comments/{commentID}", middleware.Auth(http.HandlerFunc(controller.Update)))
 	r.Handle("DELETE /comments/{commentID}", middleware.Auth(http.HandlerFunc(controller.Delete)))
+	r.Handle("GET /comments/{commentID}", middleware.Auth(http.HandlerFunc(controller.GetByID)))
 }

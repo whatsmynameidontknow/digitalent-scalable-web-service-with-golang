@@ -19,4 +19,5 @@ func InitPhotoRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	r.Handle("GET /photos", middleware.Auth(http.HandlerFunc(controller.GetAll)))
 	r.Handle("PUT /photos/{photoID}", middleware.Auth(http.HandlerFunc(controller.Update)))
 	r.Handle("DELETE /photos/{photoID}", middleware.Auth(http.HandlerFunc(controller.Delete)))
+	r.Handle("GET /photos/{photoID}", middleware.Auth(http.HandlerFunc(controller.GetByID)))
 }

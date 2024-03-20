@@ -81,7 +81,7 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 			user_
 		SET
 			email=$1,
-			password=$2,
+			username=$2,
 			updated_at=$3
 		WHERE id=$4
 		RETURNING
@@ -93,7 +93,7 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 		`
 	)
 
-	row := r.db.QueryRowContext(ctx, stmt, data.Email, data.Password, now, data.ID)
+	row := r.db.QueryRowContext(ctx, stmt, data.Email, data.Username, now, data.ID)
 	if err := row.Err(); err != nil {
 		return user, err
 	}

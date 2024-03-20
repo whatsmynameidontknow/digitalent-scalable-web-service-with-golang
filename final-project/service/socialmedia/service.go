@@ -161,3 +161,30 @@ func (s *socialMediaService) Delete(ctx context.Context, id uint64) (err error) 
 
 	return nil
 }
+
+func (s *socialMediaService) GetByID(ctx context.Context, id uint64) (dto.SocialMediaResponse, error) {
+	var resp dto.SocialMediaResponse
+
+	socialMedia, err := s.socialMediaRepo.FindByID(ctx, id)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.FindByID")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrSocialMediaNotFound, http.StatusNotFound)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+
+	resp = dto.SocialMediaResponse{
+		ID:        socialMedia.ID,
+		UserID:    socialMedia.UserID,
+		Name:      socialMedia.Name,
+		URL:       socialMedia.URL,
+		CreatedAt: socialMedia.CreatedAt,
+		UpdatedAt: socialMedia.UpdatedAt,
+		User: dto.User{
+			Username: socialMedia.User.Username,
+		},
+	}
+
+	return resp, nil
+}
