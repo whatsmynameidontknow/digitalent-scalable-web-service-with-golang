@@ -2,7 +2,9 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"final-project/dto"
+	"final-project/helper"
 	"final-project/service"
 	"net/http"
 	"strconv"
@@ -17,92 +19,113 @@ func NewSocialMediaController(socialMediaService service.SocialMediaService) *so
 }
 
 func (c *socialMediaController) Create(w http.ResponseWriter, r *http.Request) {
-	var data dto.SocialMediaRequest
+	var (
+		data dto.SocialMediaRequest
+		resp helper.Response[dto.SocialMediaCreateResponse]
+	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateCreate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := c.socialMediaService.Create(r.Context(), data)
+	socialMedia, err := c.socialMediaService.Create(r.Context(), data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(socialMedia).Code(http.StatusCreated)
 }
 
 func (c *socialMediaController) GetAll(w http.ResponseWriter, r *http.Request) {
-	resp, err := c.socialMediaService.GetAll(r.Context())
+	var resp helper.Response[[]dto.SocialMediaResponse]
+
+	socialMedias, err := c.socialMediaService.GetAll(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Data(socialMedias).Success(true).Code(http.StatusOK).Send(w)
 }
 
 func (c *socialMediaController) Update(w http.ResponseWriter, r *http.Request) {
+	var (
+		data dto.SocialMediaRequest
+		resp helper.Response[dto.SocialMediaUpdateResponse]
+	)
+
 	socialMediaIDStr := r.PathValue("socialMediaID")
 	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	var data dto.SocialMediaRequest
-
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateUpdate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := c.socialMediaService.Update(r.Context(), socialMediaID, data)
+	socialMedia, err := c.socialMediaService.Update(r.Context(), socialMediaID, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(socialMedia).Code(http.StatusOK).Send(w)
 }
 
 func (c *socialMediaController) Delete(w http.ResponseWriter, r *http.Request) {
+	var resp helper.Response[any]
+
 	socialMediaIDStr := r.PathValue("socialMediaID")
 	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = c.socialMediaService.Delete(r.Context(), socialMediaID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dto.DeleteResponse{
-		Message: "Your social media has been successfully deleted",
-	})
+	resp.Success(true).Code(http.StatusOK).Send(w)
 }

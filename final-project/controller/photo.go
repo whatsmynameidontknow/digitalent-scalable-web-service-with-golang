@@ -2,7 +2,9 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"final-project/dto"
+	"final-project/helper"
 	"final-project/service"
 	"net/http"
 	"strconv"
@@ -17,92 +19,113 @@ func NewPhotoController(photoService service.PhotoService) *photoController {
 }
 
 func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
-	var data dto.PhotoRequest
+	var (
+		data dto.PhotoRequest
+		resp helper.Response[dto.PhotoCreateResponse]
+	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateCreate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := c.photoService.Create(r.Context(), data)
+	photo, err := c.photoService.Create(r.Context(), data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(photo).Code(http.StatusCreated).Send(w)
 }
 
 func (c *photoController) GetAll(w http.ResponseWriter, r *http.Request) {
-	resp, err := c.photoService.GetAll(r.Context())
+	var resp helper.Response[[]dto.PhotoResponse]
+
+	photos, err := c.photoService.GetAll(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Data(photos).Success(true).Code(http.StatusOK).Send(w)
 }
 
 func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
+	var (
+		data dto.PhotoRequest
+		resp helper.Response[dto.PhotoUpdateResponse]
+	)
+
 	photoIDStr := r.PathValue("photoID")
 	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	var data dto.PhotoRequest
-
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateUpdate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := c.photoService.Update(r.Context(), photoID, data)
+	photo, err := c.photoService.Update(r.Context(), photoID, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(photo).Code(http.StatusOK).Send(w)
 }
 
 func (c *photoController) Delete(w http.ResponseWriter, r *http.Request) {
+	var resp helper.Response[any]
+
 	photoIDStr := r.PathValue("photoID")
 	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = c.photoService.Delete(r.Context(), photoID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dto.DeleteResponse{
-		Message: "your photo has been successfully deleted",
-	})
+	resp.Success(true).Code(http.StatusOK).Send(w)
 }

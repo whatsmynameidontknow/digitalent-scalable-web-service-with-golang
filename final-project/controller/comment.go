@@ -2,7 +2,9 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"final-project/dto"
+	"final-project/helper"
 	"final-project/service"
 	"net/http"
 	"strconv"
@@ -17,90 +19,112 @@ func NewCommentController(commentService service.CommentService) *commentControl
 }
 
 func (c *commentController) Create(w http.ResponseWriter, r *http.Request) {
-	var data dto.CommentRequest
+	var (
+		data dto.CommentRequest
+		resp helper.Response[dto.CommentCreateResponse]
+	)
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateCreate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := c.commentService.Create(r.Context(), data)
+	comment, err := c.commentService.Create(r.Context(), data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(comment).Code(http.StatusCreated).Send(w)
 }
 
 func (c *commentController) GetAll(w http.ResponseWriter, r *http.Request) {
-	resp, err := c.commentService.GetAll(r.Context())
+	var resp helper.Response[[]dto.CommentResponse]
+
+	comments, err := c.commentService.GetAll(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Data(comments).Success(true).Code(http.StatusOK).Send(w)
 }
 
 func (c *commentController) Update(w http.ResponseWriter, r *http.Request) {
+	var (
+		data dto.CommentRequest
+		resp helper.Response[dto.CommentUpdateResponse]
+	)
+
 	commentIDStr := r.PathValue("commentID")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	var data dto.CommentRequest
 	err = json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateUpdate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := c.commentService.Update(r.Context(), commentID, data)
+	comment, err := c.commentService.Update(r.Context(), commentID, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(comment).Code(http.StatusOK).Send(w)
 }
 
 func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
+	var resp helper.Response[any]
+
 	commentIDStr := r.PathValue("commentID")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = c.commentService.Delete(r.Context(), commentID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dto.DeleteResponse{
-		Message: "your comment has been successfully deleted",
-	})
+	resp.Success(true).Code(http.StatusOK).Send(w)
 }

@@ -3,11 +3,13 @@ package commentservice
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"final-project/dto"
 	"final-project/helper"
 	"final-project/model"
 	"final-project/repository"
 	"final-project/service"
+	"net/http"
 )
 
 type commentService struct {
@@ -28,12 +30,15 @@ func (s *commentService) Create(ctx context.Context, data dto.CommentRequest) (d
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
-		return resp, helper.ErrInternal
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	_, err = s.photoRepo.FindByID(ctx, data.PhotoID)
 	if err != nil {
-		return resp, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	comment := model.Comment{
@@ -44,7 +49,7 @@ func (s *commentService) Create(ctx context.Context, data dto.CommentRequest) (d
 
 	comment, err = s.commentRepo.Create(ctx, comment)
 	if err != nil {
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	resp = dto.CommentCreateResponse{
@@ -59,14 +64,11 @@ func (s *commentService) Create(ctx context.Context, data dto.CommentRequest) (d
 }
 
 func (s *commentService) GetAll(ctx context.Context) ([]dto.CommentResponse, error) {
-	var (
-		resp []dto.CommentResponse
-		err  error
-	)
+	var resp []dto.CommentResponse
 
 	comments, err := s.commentRepo.FindAll(ctx)
 	if err != nil {
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	resp = make([]dto.CommentResponse, 0, len(comments))
@@ -99,30 +101,31 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	var (
 		comment model.Comment
 		resp    dto.CommentUpdateResponse
-		err     error
 	)
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
-		return resp, helper.ErrInternal
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
+	defer helper.RollbackOrCommit(tx, &err)
 
 	comment.Message = data.Message
 	comment.ID = commentID
 	comment, err = s.commentRepo.Update(ctx, tx, comment)
 	if err != nil {
-		tx.Rollback()
-		return resp, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if comment.UserID != uint64(userID) {
-		tx.Rollback()
-		return resp, helper.ErrUnauthorized
+		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 
 	resp = dto.CommentUpdateResponse{
@@ -133,39 +136,31 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 		UpdatedAt: comment.UpdatedAt,
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return resp, err
-	}
-
 	return resp, nil
 }
 
 func (s *commentService) Delete(ctx context.Context, commentID uint64) error {
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
-		return helper.ErrInternal
+		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
-		return err
+		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
+	defer helper.RollbackOrCommit(tx, &err)
 
 	ownerID, err := s.commentRepo.Delete(ctx, tx, commentID)
 	if err != nil {
-		tx.Rollback()
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			return helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
+		}
+		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if ownerID != uint64(userID) {
-		tx.Rollback()
-		return helper.ErrUnauthorized
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		return err
+		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 	}
 
 	return nil

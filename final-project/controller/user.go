@@ -2,7 +2,9 @@ package controller
 
 import (
 	"encoding/json"
+	"errors"
 	"final-project/dto"
+	"final-project/helper"
 	"final-project/service"
 	"net/http"
 )
@@ -18,92 +20,114 @@ func NewUserController(userService service.UserService) *userController {
 }
 
 func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
-	var data dto.UserRequest
+	var (
+		data dto.UserRequest
+		resp helper.Response[dto.UserCreateResponse]
+	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateCreate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := u.userService.Create(r.Context(), data)
+	user, err := u.userService.Create(r.Context(), data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(user).Code(http.StatusCreated).Send(w)
 }
 
 func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
-	var data dto.UserRequest
+	var (
+		data dto.UserRequest
+		resp helper.Response[dto.UserLoginResponse]
+	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateLogin()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := u.userService.Login(r.Context(), data)
+	token, err := u.userService.Login(r.Context(), data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(token).Code(http.StatusOK).Send(w)
 }
 
 func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
-	var data dto.UserRequest
+	var (
+		data dto.UserRequest
+		resp helper.Response[dto.UserUpdateResponse]
+	)
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
 	err = data.ValidateUpdate()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		resp.Error(err).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
-	resp, err := u.userService.Update(r.Context(), data)
+	user, err := u.userService.Update(r.Context(), data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	resp.Success(true).Data(user).Code(http.StatusOK).Send(w)
 }
 
 func (u *userController) Delete(w http.ResponseWriter, r *http.Request) {
+	var resp helper.Response[dto.DeleteResponse]
+
 	err := u.userService.Delete(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respErr := new(helper.ResponseError)
+		if errors.As(err, &respErr) {
+			resp.Error(respErr).Code(respErr.Code()).Send(w)
+			return
+		}
+		resp.Error(err).Code(http.StatusInternalServerError).Send(w)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(dto.DeleteResponse{
-		Message: "your account has been successfully deleted",
-	})
+	resp.Success(true).Code(http.StatusOK).Send(w)
 }

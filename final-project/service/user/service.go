@@ -2,12 +2,14 @@ package userservice
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"final-project/dto"
 	"final-project/helper"
 	"final-project/model"
 	"final-project/repository"
 	"final-project/service"
+	"net/http"
 
 	"github.com/lib/pq"
 )
@@ -35,7 +37,7 @@ func (u *userService) Create(ctx context.Context, data dto.UserRequest) (dto.Use
 
 	user.Password, err = helper.HashPassword(data.Password)
 	if err != nil {
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	user, err = u.userRepo.Create(ctx, user)
@@ -43,10 +45,10 @@ func (u *userService) Create(ctx context.Context, data dto.UserRequest) (dto.Use
 		pqErr := new(pq.Error)
 		if errors.As(err, &pqErr) {
 			if pqErr.Code.Name() == "unique_violation" {
-				return resp, helper.ErrorDuplicate(pqErr.Constraint)
+				return resp, helper.NewResponseError(helper.ErrDuplicate, http.StatusConflict)
 			}
 		}
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	resp.ID = user.ID
@@ -62,16 +64,19 @@ func (u *userService) Login(ctx context.Context, data dto.UserRequest) (dto.User
 
 	user, err := u.userRepo.FindByEmail(ctx, data.Email)
 	if err != nil {
-		return resp, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrInvalidLogin, http.StatusUnauthorized)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if !helper.IsValidPassword(user.Password, data.Password) {
-		return resp, errors.New("invalid password")
+		return resp, helper.NewResponseError(helper.ErrInvalidLogin, http.StatusUnauthorized)
 	}
 
 	resp.Token, err = helper.GenerateJWT(user.ID)
 	if err != nil {
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	return resp, nil
@@ -86,18 +91,27 @@ func (u *userService) Update(ctx context.Context, data dto.UserRequest) (dto.Use
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
-		return resp, helper.ErrInternal
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 	user.ID = uint64(userID)
 	user.Email = data.Email
 	user.Password, err = helper.HashPassword(data.Password)
 	if err != nil {
-		return resp, err
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	user, err = u.userRepo.Update(ctx, user)
 	if err != nil {
-		return resp, nil
+		pqErr := new(pq.Error)
+		if errors.As(err, &pqErr) {
+			if pqErr.Code.Name() == "unique_violation" {
+				return resp, helper.NewResponseError(helper.ErrDuplicate, http.StatusConflict)
+			}
+		}
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrUserNotFound, http.StatusNotFound)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	resp.ID = user.ID
@@ -112,12 +126,15 @@ func (u *userService) Update(ctx context.Context, data dto.UserRequest) (dto.Use
 func (u *userService) Delete(ctx context.Context) error {
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
-		return helper.ErrInternal
+		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	err := u.userRepo.Delete(ctx, uint64(userID))
 	if err != nil {
-		return err
+		if errors.Is(err, sql.ErrNoRows) {
+			return helper.NewResponseError(helper.ErrUserNotFound, http.StatusNotFound)
+		}
+		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	return nil

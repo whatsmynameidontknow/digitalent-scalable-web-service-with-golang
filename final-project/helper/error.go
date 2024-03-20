@@ -2,23 +2,35 @@ package helper
 
 import (
 	"errors"
-	"fmt"
 )
 
 var (
-	ErrInternal     = errors.New("there's something wrong. it's our fault, not yours")
-	ErrUnauthorized = errors.New("you're not allowed to perform this action")
+	ErrInternal            = errors.New("there's something wrong. it's our fault, not yours")
+	ErrUnauthorized        = errors.New("you're not allowed to perform this action")
+	ErrDuplicate           = errors.New("user with given username or email already exists")
+	ErrInvalidLogin        = errors.New("invalid email or password")
+	ErrUserNotFound        = errors.New("user not found")
+	ErrPhotoNotFound       = errors.New("photo with given id not found")
+	ErrCommentNotFound     = errors.New("comment with given id not found")
+	ErrSocialMediaNotFound = errors.New("social media with given id not found")
 )
 
-func ErrorDuplicate(constraint string) error {
-	var field string
-	switch constraint {
-	case "users_username_key":
-		field = "username"
-	case "users_email_key":
-		field = "email"
-	default:
-		return errors.New("duplicate value")
+type ResponseError struct {
+	err  error
+	code int
+}
+
+func NewResponseError(err error, code int) error {
+	return &ResponseError{
+		err:  err,
+		code: code,
 	}
-	return fmt.Errorf("user with given %s already exists", field)
+}
+
+func (r *ResponseError) Error() string {
+	return r.err.Error()
+}
+
+func (r *ResponseError) Code() int {
+	return r.code
 }
