@@ -27,3 +27,10 @@ type CommentRepository interface {
 	Update(context.Context, *sql.Tx, model.Comment) (model.Comment, error)
 	Delete(context.Context, *sql.Tx, uint64) (uint64, error)
 }
+
+type SocialMediaRepository interface {
+	Create(context.Context, model.SocialMedia) (model.SocialMedia, error)
+	FindAll(context.Context) ([]model.SocialMedia, error)
+	Update(context.Context, *sql.Tx, model.SocialMedia) (model.SocialMedia, error)
+	Delete(context.Context, *sql.Tx, uint64) (uint64, error)
+}

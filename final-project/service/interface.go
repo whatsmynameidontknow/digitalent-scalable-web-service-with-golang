@@ -25,3 +25,10 @@ type CommentService interface {
 	Update(context.Context, uint64, dto.CommentRequest) (dto.CommentUpdateResponse, error)
 	Delete(context.Context, uint64) error
 }
+
+type SocialMediaService interface {
+	Create(context.Context, dto.SocialMediaRequest) (dto.SocialMediaCreateResponse, error)
+	GetAll(context.Context) ([]dto.SocialMediaResponse, error)
+	Update(context.Context, uint64, dto.SocialMediaRequest) (dto.SocialMediaUpdateResponse, error)
+	Delete(context.Context, uint64) error
+}

@@ -33,6 +33,7 @@ func main() {
 		routes.InitUserRoutes(r, db)
 		routes.InitPhotoRoutes(r, db)
 		routes.InitCommentRoutes(r, db)
+		routes.InitSocialMediaRoutes(r, db)
 	}
 
 	server := new(http.Server)
