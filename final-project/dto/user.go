@@ -28,6 +28,10 @@ func (u UserRequest) ValidateCreate() error {
 		errs = errors.Join(errs, errors.New("username can't be empty"))
 	}
 
+	if len(u.Username) > 100 {
+		errs = errors.Join(errs, errors.New("username can't be more than 50 characters"))
+	}
+
 	if u.Password == "" {
 		errs = errors.Join(errs, errors.New("password can't be empty"))
 	}
@@ -83,6 +87,10 @@ func (u UserRequest) ValidateUpdate() error {
 
 	if u.Username == "" {
 		errs = errors.Join(errs, errors.New("username can't be empty"))
+	}
+
+	if len(u.Username) > 100 {
+		errs = errors.Join(errs, errors.New("username can't be more than 50 characters"))
 	}
 
 	if u.Email == "" {

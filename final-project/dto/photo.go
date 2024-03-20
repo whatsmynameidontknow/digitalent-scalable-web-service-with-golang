@@ -19,6 +19,10 @@ func (p PhotoRequest) ValidateCreate() error {
 		errs = errors.Join(errs, errors.New("title can't be empty"))
 	}
 
+	if len(p.Title) > 100 {
+		errs = errors.Join(errs, errors.New("title can't be more than 100 characters"))
+	}
+
 	if p.PhotoURL == "" {
 		errs = errors.Join(errs, errors.New("photo_url can't be empty"))
 	}
@@ -56,6 +60,10 @@ func (p PhotoRequest) ValidateUpdate() error {
 
 	if p.Title == "" {
 		errs = errors.Join(errs, errors.New("title can't be empty"))
+	}
+
+	if len(p.Title) > 100 {
+		errs = errors.Join(errs, errors.New("title can't be more than 100 characters"))
 	}
 
 	if p.PhotoURL == "" {

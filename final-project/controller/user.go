@@ -24,7 +24,7 @@ func NewUserController(userService service.UserService) *userController {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body dto.UserRequest true "required body"
+// @Param request body dto.UserRegister true "required body"
 // @Success 201 {object} helper.Response[dto.UserCreateResponse]
 // @Failure 400 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
@@ -66,7 +66,7 @@ func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param request body dto.UserRequest true "required body"
+// @Param request body dto.UserLogin true "required body"
 // @Success 200 {object} helper.Response[dto.UserLoginResponse]
 // @Failure 400 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
@@ -103,6 +103,17 @@ func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
 	resp.Success(true).Data(token).Code(http.StatusOK).Send(w)
 }
 
+// UserUpdate godoc
+// @Summary update user
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerToken
+// @Param request body dto.UserUpdate true "required body"
+// @Success 200 {object} helper.Response[dto.UserUpdateResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /users [put]
 func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.UserRequest
@@ -135,6 +146,15 @@ func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
 	resp.Success(true).Data(user).Code(http.StatusOK).Send(w)
 }
 
+// UserDelete godoc
+// @Summary delete user
+// @Tags users
+// @Produce json
+// @Security BearerToken
+// @Success 200 {object} helper.Response[any]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /users [delete]
 func (u *userController) Delete(w http.ResponseWriter, r *http.Request) {
 	var resp = helper.NewResponse[any](helper.UserDelete)
 

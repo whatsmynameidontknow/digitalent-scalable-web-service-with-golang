@@ -1,9 +1,9 @@
 -- CREATE user TABLE
 CREATE TABLE IF NOT EXISTS user_ (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(100) NOT NULL,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password CHAR(60) NOT NULL,
     age INTEGER CHECK(age >= 8) NOT NULL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
@@ -15,9 +15,9 @@ CREATE INDEX IF NOT EXISTS idx_user_email ON user_(email);
 -- CREATE photo TABLE
 CREATE TABLE IF NOT EXISTS photo (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    title VARCHAR(50) NOT NULL,
-    caption VARCHAR(100),
-    url VARCHAR(50) NOT NULL,
+    title VARCHAR(100) NOT NULL,
+    caption TEXT,
+    url TEXT NOT NULL,
     user_id INTEGER REFERENCES user_(id) ON DELETE CASCADE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS comment (
 -- CREATE social_media TABLE
 CREATE TABLE IF NOT EXISTS social_media (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    url VARCHAR(50) NOT NULL,
+    name TEXT NOT NULL,
+    url TEXT NOT NULL,
     user_id INTEGER REFERENCES user_(id) ON DELETE CASCADE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP

@@ -23,7 +23,11 @@ import (
 // @title Hacktiv8-Golang final-project
 // @version 1.0
 // @description submission for final-project
-// @BasePath /
+
+// @securityDefinitions.apikey BearerToken
+// @in header
+// @name Authorization
+// @description Bearer token for authentication. Example: Bearer {token}
 func main() {
 	logger := logging.New(os.Stdout)
 	conf, err := config.Load("config.json")
@@ -53,9 +57,10 @@ func main() {
 
 	r := http.NewServeMux()
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
+	docs.SwaggerInfo.BasePath = "/api/v1/"
 
 	{
-		r.Handle("/", middleware.Logging(api))
+		r.Handle("/api/v1/", middleware.Logging(http.StripPrefix("/api/v1", api)))
 		r.HandleFunc("GET /swagger/", httpSwagger.Handler(
 			httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", conf.App.Host, conf.App.Port)),
 		))

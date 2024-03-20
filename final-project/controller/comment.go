@@ -18,6 +18,17 @@ func NewCommentController(commentService service.CommentService) *commentControl
 	return &commentController{commentService}
 }
 
+// CommentCreate godoc
+// @Summary create a new comment
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security BearerToken
+// @Param request body dto.CommentCreate true "required body"
+// @Success 201 {object} helper.Response[dto.CommentCreateResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /comments [post]
 func (c *commentController) Create(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.CommentRequest
@@ -49,6 +60,14 @@ func (c *commentController) Create(w http.ResponseWriter, r *http.Request) {
 	resp.Success(true).Data(comment).Code(http.StatusCreated).Send(w)
 }
 
+// CommentGetAll godoc
+// @Summary get all comments
+// @Tags comments
+// @Produce json
+// @Security BearerToken
+// @Success 200 {object} helper.Response[[]dto.CommentResponse]
+// @Failure 500 {object} helper.Response[any]
+// @Router /comments [get]
 func (c *commentController) GetAll(w http.ResponseWriter, r *http.Request) {
 	var resp = helper.NewResponse[[]dto.CommentResponse](helper.CommentGetAll)
 
@@ -66,6 +85,19 @@ func (c *commentController) GetAll(w http.ResponseWriter, r *http.Request) {
 	resp.Data(comments).Success(true).Code(http.StatusOK).Send(w)
 }
 
+// CommentUpdate godoc
+// @Summary update a comment
+// @Tags comments
+// @Accept json
+// @Produce json
+// @Security BearerToken
+// @Param commentID path int true "comment ID"
+// @Param request body dto.CommentUpdate true "required body"
+// @Success 200 {object} helper.Response[dto.CommentUpdateResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /comments/{commentID} [put]
 func (c *commentController) Update(w http.ResponseWriter, r *http.Request) {
 	var (
 		data dto.CommentRequest
@@ -105,6 +137,17 @@ func (c *commentController) Update(w http.ResponseWriter, r *http.Request) {
 	resp.Success(true).Data(comment).Code(http.StatusOK).Send(w)
 }
 
+// CommentDelete godoc
+// @Summary delete a comment
+// @Tags comments
+// @Produce json
+// @Security BearerToken
+// @Param commentID path int true "comment ID"
+// @Success 200 {object} helper.Response[any]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /comments/{commentID} [delete]
 func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
 	var resp = helper.NewResponse[any](helper.CommentDelete)
 
@@ -129,6 +172,17 @@ func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
 	resp.Success(true).Code(http.StatusOK).Send(w)
 }
 
+// CommentGetByID godoc
+// @Summary get a comment by ID
+// @Tags comments
+// @Produce json
+// @Security BearerToken
+// @Param commentID path int true "comment ID"
+// @Success 200 {object} helper.Response[dto.CommentResponse]
+// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 500 {object} helper.Response[any]
+// @Router /comments/{commentID} [get]
 func (c *commentController) GetByID(w http.ResponseWriter, r *http.Request) {
 	var resp = helper.NewResponse[dto.CommentResponse](helper.CommentGetByID)
 
