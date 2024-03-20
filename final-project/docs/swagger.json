@@ -1012,6 +1012,9 @@
                 "caption": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "photo_url": {
                     "type": "string"
                 },
@@ -1229,6 +1232,9 @@
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"

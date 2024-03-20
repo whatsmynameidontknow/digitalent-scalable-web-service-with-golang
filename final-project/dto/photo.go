@@ -87,6 +87,7 @@ type PhotoUpdateResponse struct {
 }
 
 type Photo struct {
+	ID       uint64 `json:"id"`
 	Title    string `json:"title"`
 	Caption  string `json:"caption"`
 	PhotoURL string `json:"photo_url"`

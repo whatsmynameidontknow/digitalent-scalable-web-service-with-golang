@@ -78,7 +78,9 @@ func (s *socialMediaService) GetAll(ctx context.Context) ([]dto.SocialMediaRespo
 			CreatedAt: socialMedia.CreatedAt,
 			UpdatedAt: socialMedia.UpdatedAt,
 			User: dto.User{
+				ID:       socialMedia.UserID,
 				Username: socialMedia.User.Username,
+				Email:    socialMedia.User.Email,
 			},
 		})
 	}
@@ -182,7 +184,9 @@ func (s *socialMediaService) GetByID(ctx context.Context, id uint64) (dto.Social
 		CreatedAt: socialMedia.CreatedAt,
 		UpdatedAt: socialMedia.UpdatedAt,
 		User: dto.User{
+			ID:       socialMedia.UserID,
 			Username: socialMedia.User.Username,
+			Email:    socialMedia.User.Email,
 		},
 	}
 

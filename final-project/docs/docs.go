@@ -1020,6 +1020,9 @@ const docTemplate = `{
                 "caption": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "photo_url": {
                     "type": "string"
                 },
@@ -1237,6 +1240,9 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"

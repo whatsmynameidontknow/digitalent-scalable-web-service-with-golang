@@ -87,6 +87,7 @@ func (s *photoService) GetAll(ctx context.Context) ([]dto.PhotoResponse, error) 
 			CreatedAt: photo.CreatedAt,
 			UpdatedAt: photo.UpdatedAt,
 			User: dto.User{
+				ID:       photo.UserID,
 				Email:    photo.User.Email,
 				Username: photo.User.Username,
 			},
@@ -202,6 +203,7 @@ func (s *photoService) GetByID(ctx context.Context, id uint64) (dto.PhotoRespons
 		CreatedAt: photo.CreatedAt,
 		UpdatedAt: photo.UpdatedAt,
 		User: dto.User{
+			ID:       photo.UserID,
 			Email:    photo.User.Email,
 			Username: photo.User.Username,
 		},

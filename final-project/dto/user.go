@@ -108,6 +108,7 @@ type UserUpdateResponse struct {
 }
 
 type User struct {
-	Email    string `json:"email,omitempty"`
+	ID       uint64 `json:"id"`
+	Email    string `json:"email"`
 	Username string `json:"username"`
 }

@@ -57,8 +57,8 @@ func (r *socialMediaRepository) FindAll(ctx context.Context) ([]model.SocialMedi
 			s.user_id,
 			s.created_at,
 			s.updated_at,
-			u.id,
-			u.username
+			u.username,
+			u.email
 		FROM social_media s
 		INNER JOIN user_ u ON s.user_id = u.id
 		ORDER BY s.created_at DESC
@@ -74,7 +74,7 @@ func (r *socialMediaRepository) FindAll(ctx context.Context) ([]model.SocialMedi
 
 	for rows.Next() {
 		var socialMedia model.SocialMedia
-		rows.Scan(&socialMedia.ID, &socialMedia.Name, &socialMedia.URL, &socialMedia.UserID, &socialMedia.CreatedAt, &socialMedia.UpdatedAt, &socialMedia.User.ID, &socialMedia.User.Username)
+		rows.Scan(&socialMedia.ID, &socialMedia.Name, &socialMedia.URL, &socialMedia.UserID, &socialMedia.CreatedAt, &socialMedia.UpdatedAt, &socialMedia.User.Username, &socialMedia.User.Email)
 		socialMedias = append(socialMedias, socialMedia)
 	}
 
@@ -150,7 +150,6 @@ func (r *socialMediaRepository) FindByID(ctx context.Context, id uint64) (model.
 			s.user_id,
 			s.created_at,
 			s.updated_at,
-			u.id,
 			u.username,
 			u.email
 		FROM social_media s
@@ -165,7 +164,7 @@ func (r *socialMediaRepository) FindByID(ctx context.Context, id uint64) (model.
 		return socialMedia, err
 	}
 
-	err := row.Scan(&socialMedia.ID, &socialMedia.Name, &socialMedia.URL, &socialMedia.UserID, &socialMedia.CreatedAt, &socialMedia.UpdatedAt, &socialMedia.User.ID, &socialMedia.User.Username, &socialMedia.User.Email)
+	err := row.Scan(&socialMedia.ID, &socialMedia.Name, &socialMedia.URL, &socialMedia.UserID, &socialMedia.CreatedAt, &socialMedia.UpdatedAt, &socialMedia.User.Username, &socialMedia.User.Email)
 	if err != nil {
 		return socialMedia, err
 	}

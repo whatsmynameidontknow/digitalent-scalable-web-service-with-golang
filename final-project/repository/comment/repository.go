@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"final-project/model"
 	"final-project/repository"
-	"fmt"
 	"time"
 )
 
@@ -60,10 +59,8 @@ func (r *commentRepository) FindAll(ctx context.Context) ([]model.Comment, error
 			c.user_id,
 			c.created_at,
 			c.updated_at,
-			u.id,
 			u.username,
 			u.email,
-			p.id,
 			p.title,
 			p.caption,
 			p.url,
@@ -82,19 +79,12 @@ func (r *commentRepository) FindAll(ctx context.Context) ([]model.Comment, error
 	defer rows.Close()
 
 	for rows.Next() {
-		var (
-			comment model.Comment
-			user    model.User
-			photo   model.Photo
-		)
+		var comment model.Comment
 
-		err := rows.Scan(&comment.ID, &comment.Message, &comment.PhotoID, &comment.UserID, &comment.CreatedAt, &comment.UpdatedAt, &user.ID, &user.Username, &user.Email, &photo.ID, &photo.Title, &photo.Caption, &photo.URL, &photo.UserID)
+		err := rows.Scan(&comment.ID, &comment.Message, &comment.PhotoID, &comment.UserID, &comment.CreatedAt, &comment.UpdatedAt, &comment.User.Username, &comment.User.Email, &comment.Photo.Title, &comment.Photo.Caption, &comment.Photo.URL, &comment.Photo.UserID)
 		if err != nil {
 			return comments, err
 		}
-
-		comment.User = user
-		comment.Photo = photo
 
 		comments = append(comments, comment)
 	}
@@ -121,8 +111,6 @@ func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.C
 			updated_at
 		`
 	)
-
-	fmt.Println(data.Message, data.ID)
 
 	row := tx.QueryRowContext(ctx, stmt, data.Message, now, data.ID)
 	if err := row.Err(); err != nil {
@@ -173,10 +161,8 @@ func (r *commentRepository) FindByID(ctx context.Context, id uint64) (model.Comm
 			c.user_id,
 			c.created_at,
 			c.updated_at,
-			u.id,
 			u.username,
 			u.email,
-			p.id,
 			p.title,
 			p.caption,
 			p.url,
@@ -193,7 +179,7 @@ func (r *commentRepository) FindByID(ctx context.Context, id uint64) (model.Comm
 		return comment, err
 	}
 
-	err := row.Scan(&comment.ID, &comment.Message, &comment.PhotoID, &comment.UserID, &comment.CreatedAt, &comment.UpdatedAt, &comment.User.ID, &comment.User.Username, &comment.User.Email, &comment.Photo.ID, &comment.Photo.Title, &comment.Photo.Caption, &comment.Photo.URL, &comment.Photo.UserID)
+	err := row.Scan(&comment.ID, &comment.Message, &comment.PhotoID, &comment.UserID, &comment.CreatedAt, &comment.UpdatedAt, &comment.User.Username, &comment.User.Email, &comment.Photo.Title, &comment.Photo.Caption, &comment.Photo.URL, &comment.Photo.UserID)
 	if err != nil {
 		return comment, err
 	}

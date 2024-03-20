@@ -88,10 +88,12 @@ func (s *commentService) GetAll(ctx context.Context) ([]dto.CommentResponse, err
 			CreatedAt: comment.CreatedAt,
 			UpdateAt:  comment.UpdatedAt,
 			User: dto.User{
+				ID:       comment.UserID,
 				Username: comment.User.Username,
 				Email:    comment.User.Email,
 			},
 			Photo: dto.Photo{
+				ID:       comment.PhotoID,
 				Title:    comment.Photo.Title,
 				Caption:  comment.Photo.Caption.String,
 				PhotoURL: comment.Photo.URL,
@@ -198,10 +200,12 @@ func (s *commentService) GetByID(ctx context.Context, commentID uint64) (dto.Com
 		CreatedAt: comment.CreatedAt,
 		UpdateAt:  comment.UpdatedAt,
 		User: dto.User{
+			ID:       comment.UserID,
 			Username: comment.User.Username,
 			Email:    comment.User.Email,
 		},
 		Photo: dto.Photo{
+			ID:       comment.PhotoID,
 			Title:    comment.Photo.Title,
 			Caption:  comment.Photo.Caption.String,
 			PhotoURL: comment.Photo.URL,

@@ -63,6 +63,8 @@ definitions:
     properties:
       caption:
         type: string
+      id:
+        type: integer
       photo_url:
         type: string
       title:
@@ -208,6 +210,8 @@ definitions:
     properties:
       email:
         type: string
+      id:
+        type: integer
       username:
         type: string
     type: object
