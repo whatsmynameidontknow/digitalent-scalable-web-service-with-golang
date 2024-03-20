@@ -4,6 +4,7 @@ import (
 	"context"
 	"final-project/lib/config"
 	"final-project/lib/database"
+	"final-project/middleware"
 	"final-project/routes"
 	"fmt"
 	"net/http"
@@ -38,7 +39,7 @@ func main() {
 
 	server := new(http.Server)
 	server.Addr = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
-	server.Handler = r
+	server.Handler = middleware.Recover(r)
 
 	fmt.Printf("Server started at %s\n", server.Addr)
 	go func() {
