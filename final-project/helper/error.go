@@ -13,6 +13,7 @@ var (
 	ErrPhotoNotFound       = errors.New("photo with given id not found")
 	ErrCommentNotFound     = errors.New("comment with given id not found")
 	ErrSocialMediaNotFound = errors.New("social media with given id not found")
+	ErrNotLoggedIn         = errors.New("you're not logged in")
 )
 
 type ResponseError struct {
