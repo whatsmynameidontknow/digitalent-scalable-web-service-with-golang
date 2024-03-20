@@ -69,7 +69,7 @@ func (r *commentRepository) FindAll(ctx context.Context) ([]model.Comment, error
 			p.photo_url,
 			p.user_id
 		FROM comment c
-		INNER JOIN user u ON c.user_id=u.id
+		INNER JOIN user_ u ON c.user_id=u.id
 		INNER JOIN photo p ON c.photo_id=p.id
 		ORDER BY c.created_at DESC
 		`

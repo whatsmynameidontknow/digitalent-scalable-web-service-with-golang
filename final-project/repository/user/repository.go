@@ -24,7 +24,7 @@ func (r *userRepository) Create(ctx context.Context, data model.User) (model.Use
 		now  = time.Now()
 		stmt = `
 		INSERT INTO
-			user(username, email, password, age, created_at, updated_at)
+			user_(username, email, password, age, created_at, updated_at)
 			VALUES($1, $2, $3, $4, $5, $6)
 		RETURNING
 			id,
@@ -54,7 +54,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (model.U
 		SELECT
 			id,
 			password
-		FROM user
+		FROM user_
 		WHERE email=$1
 		`
 	)
@@ -78,7 +78,7 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 		now  = time.Now()
 		stmt = `
 		UPDATE
-			user
+			user_
 		SET
 			email=$1,
 			password=$2,
@@ -110,7 +110,7 @@ func (r *userRepository) Delete(ctx context.Context, userID uint64) error {
 	var (
 		stmt = `
 		DELETE FROM
-			user
+			user_
 		WHERE id=$1
 		`
 	)

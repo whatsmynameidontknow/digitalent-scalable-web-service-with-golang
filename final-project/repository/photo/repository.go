@@ -22,13 +22,13 @@ func (r *photoRepository) Create(ctx context.Context, data model.Photo) (model.P
 		now   = time.Now()
 		stmt  = `
 		INSERT INTO 
-			photo(title, caption, photo_url, user_id, created_at, updated_at)
+			photo(title, caption, url, user_id, created_at, updated_at)
 			VALUES($1, $2, $3, $4, $5, $6)
 		RETURNING
 			id, 
 			title, 
 			caption, 
-			photo_url, 
+			url, 
 			user_id, 
 			created_at
 		`
@@ -55,14 +55,14 @@ func (r *photoRepository) FindAll(ctx context.Context) ([]model.Photo, error) {
 			p.id,
 			p.title,
 			p.caption,
-			p.photo_url,
+			p.url,
 			p.user_id,
 			p.created_at,
 			p.updated_at,
 			u.email,
 			u.username
 		FROM photo p
-		INNER JOIN user u ON p.user_id=u.id`
+		INNER JOIN user_ u ON p.user_id=u.id`
 	)
 
 	rows, err := r.db.QueryContext(ctx, stmt)
@@ -91,14 +91,14 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 		SET 
 			title=$1,
 			caption=$2,
-			photo_url=$3,
+			url=$3,
 			updated_at=$4
 		WHERE id=$5
 		RETURNING 
 			id, 
 			title, 
 			caption, 
-			photo_url, 
+			url, 
 			user_id, 
 			updated_at
 		`
@@ -150,14 +150,14 @@ func (r *photoRepository) FindByID(ctx context.Context, id uint64) (model.Photo,
 			p.id,
 			p.title,
 			p.caption,
-			p.photo_url,
+			p.url,
 			p.user_id,
 			p.created_at,
 			p.updated_at,
 			u.email,
 			u.username
 		FROM photo p
-		INNER JOIN user u ON p.user_id=u.id
+		INNER JOIN user_ u ON p.user_id=u.id
 		WHERE p.id=$1`
 	)
 
