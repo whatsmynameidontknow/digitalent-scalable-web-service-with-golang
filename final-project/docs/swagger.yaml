@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   dto.CommentCreate:
     properties:
@@ -505,6 +506,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/helper.Response-array_dto_CommentResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -535,6 +540,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -561,6 +570,10 @@ paths:
             $ref: '#/definitions/helper.Response-any'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/helper.Response-any'
         "404":
@@ -592,6 +605,10 @@ paths:
             $ref: '#/definitions/helper.Response-dto_CommentResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/helper.Response-any'
         "404":
@@ -633,6 +650,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "404":
           description: Not Found
           schema:
@@ -657,6 +678,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/helper.Response-array_dto_PhotoResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -687,6 +712,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -713,6 +742,10 @@ paths:
             $ref: '#/definitions/helper.Response-any'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/helper.Response-any'
         "404":
@@ -815,6 +848,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/helper.Response-array_dto_SocialMediaResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -845,6 +882,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -871,6 +912,10 @@ paths:
             $ref: '#/definitions/helper.Response-any'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/helper.Response-any'
         "404":
@@ -902,6 +947,10 @@ paths:
             $ref: '#/definitions/helper.Response-dto_SocialMediaResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/helper.Response-any'
         "404":
@@ -943,6 +992,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "404":
           description: Not Found
           schema:
@@ -965,8 +1018,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/helper.Response-any'
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
           schema:
             $ref: '#/definitions/helper.Response-any'
         "500":
@@ -997,6 +1050,14 @@ paths:
             $ref: '#/definitions/helper.Response-dto_UserUpdateResponse'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/helper.Response-any'
+        "409":
+          description: Conflict
           schema:
             $ref: '#/definitions/helper.Response-any'
         "500":
@@ -1030,6 +1091,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -1059,6 +1124,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/helper.Response-any'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/helper.Response-any'
         "500":
           description: Internal Server Error
           schema:
@@ -1068,7 +1137,7 @@ paths:
       - users
 securityDefinitions:
   BearerToken:
-    description: 'Bearer token for authentication. Example: Bearer {token}'
+    description: 'Bearer token for authentication. Format: Bearer {token}'
     in: header
     name: Authorization
     type: apiKey

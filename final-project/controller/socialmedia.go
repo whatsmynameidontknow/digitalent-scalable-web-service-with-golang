@@ -20,13 +20,14 @@ func NewSocialMediaController(socialMediaService service.SocialMediaService) *so
 
 // SocialMediaCreate godoc
 // @Summary create a new social media
-// @Tags social-media
+// @Tags socialmedias
 // @Accept json
 // @Produce json
 // @Security BearerToken
 // @Param request body dto.SocialMediaCreate true "required body"
 // @Success 201 {object} helper.Response[dto.SocialMediaCreateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /socialmedias [post]
 func (c *socialMediaController) Create(w http.ResponseWriter, r *http.Request) {
@@ -63,10 +64,11 @@ func (c *socialMediaController) Create(w http.ResponseWriter, r *http.Request) {
 
 // SocialMediaGetAll godoc
 // @Summary get all social media
-// @Tags social-media
+// @Tags socialmedias
 // @Produce json
 // @Security BearerToken
 // @Success 200 {object} helper.Response[[]dto.SocialMediaResponse]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /socialmedias [get]
 func (c *socialMediaController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +90,7 @@ func (c *socialMediaController) GetAll(w http.ResponseWriter, r *http.Request) {
 
 // SocialMediaUpdate godoc
 // @Summary update social media
-// @Tags social-media
+// @Tags socialmedias
 // @Accept json
 // @Produce json
 // @Security BearerToken
@@ -96,6 +98,7 @@ func (c *socialMediaController) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Param request body dto.SocialMediaUpdate true "required body"
 // @Success 200 {object} helper.Response[dto.SocialMediaUpdateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /socialmedias/{socialMediaID} [put]
@@ -108,7 +111,7 @@ func (c *socialMediaController) Update(w http.ResponseWriter, r *http.Request) {
 	socialMediaIDStr := r.PathValue("socialMediaID")
 	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
@@ -140,12 +143,13 @@ func (c *socialMediaController) Update(w http.ResponseWriter, r *http.Request) {
 
 // SocialMediaDelete godoc
 // @Summary delete social media
-// @Tags social-media
+// @Tags socialmedias
 // @Produce json
 // @Security BearerToken
 // @Param socialMediaID path int true "social media ID"
 // @Success 200 {object} helper.Response[any]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /socialmedias/{socialMediaID} [delete]
@@ -155,7 +159,7 @@ func (c *socialMediaController) Delete(w http.ResponseWriter, r *http.Request) {
 	socialMediaIDStr := r.PathValue("socialMediaID")
 	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
@@ -175,12 +179,13 @@ func (c *socialMediaController) Delete(w http.ResponseWriter, r *http.Request) {
 
 // SocialMediaGetByID godoc
 // @Summary get social media by ID
-// @Tags social-media
+// @Tags socialmedias
 // @Produce json
 // @Security BearerToken
 // @Param socialMediaID path int true "social media ID"
 // @Success 200 {object} helper.Response[dto.SocialMediaResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /socialmedias/{socialMediaID} [get]
@@ -190,7 +195,7 @@ func (c *socialMediaController) GetByID(w http.ResponseWriter, r *http.Request) 
 	socialMediaIDStr := r.PathValue("socialMediaID")
 	socialMediaID, err := strconv.ParseUint(socialMediaIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 

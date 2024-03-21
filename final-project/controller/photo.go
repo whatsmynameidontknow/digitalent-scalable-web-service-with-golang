@@ -27,6 +27,7 @@ func NewPhotoController(photoService service.PhotoService) *photoController {
 // @Param request body dto.PhotoCreate true "required body"
 // @Success 201 {object} helper.Response[dto.PhotoCreateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /photos [post]
 func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +69,7 @@ func (c *photoController) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security BearerToken
 // @Success 200 {object} helper.Response[[]dto.PhotoResponse]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /photos [get]
 func (c *photoController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +112,7 @@ func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
 	photoIDStr := r.PathValue("photoID")
 	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
@@ -148,7 +150,7 @@ func (c *photoController) Update(w http.ResponseWriter, r *http.Request) {
 // @Param photoID path int true "photo id"
 // @Success 200 {object} helper.Response[any]
 // @Failure 400 {object} helper.Response[any]
-// @Failure 404 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /photos/{photoID} [delete]
@@ -158,7 +160,7 @@ func (c *photoController) Delete(w http.ResponseWriter, r *http.Request) {
 	photoIDStr := r.PathValue("photoID")
 	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
@@ -194,7 +196,7 @@ func (c *photoController) GetByID(w http.ResponseWriter, r *http.Request) {
 	photoIDStr := r.PathValue("photoID")
 	photoID, err := strconv.ParseUint(photoIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 

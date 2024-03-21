@@ -27,6 +27,7 @@ func NewCommentController(commentService service.CommentService) *commentControl
 // @Param request body dto.CommentCreate true "required body"
 // @Success 201 {object} helper.Response[dto.CommentCreateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /comments [post]
 func (c *commentController) Create(w http.ResponseWriter, r *http.Request) {
@@ -66,6 +67,7 @@ func (c *commentController) Create(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security BearerToken
 // @Success 200 {object} helper.Response[[]dto.CommentResponse]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /comments [get]
 func (c *commentController) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -95,6 +97,7 @@ func (c *commentController) GetAll(w http.ResponseWriter, r *http.Request) {
 // @Param request body dto.CommentUpdate true "required body"
 // @Success 200 {object} helper.Response[dto.CommentUpdateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /comments/{commentID} [put]
@@ -107,7 +110,7 @@ func (c *commentController) Update(w http.ResponseWriter, r *http.Request) {
 	commentIDStr := r.PathValue("commentID")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
@@ -145,6 +148,7 @@ func (c *commentController) Update(w http.ResponseWriter, r *http.Request) {
 // @Param commentID path int true "comment ID"
 // @Success 200 {object} helper.Response[any]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /comments/{commentID} [delete]
@@ -154,7 +158,7 @@ func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
 	commentIDStr := r.PathValue("commentID")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 
@@ -180,6 +184,7 @@ func (c *commentController) Delete(w http.ResponseWriter, r *http.Request) {
 // @Param commentID path int true "comment ID"
 // @Success 200 {object} helper.Response[dto.CommentResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /comments/{commentID} [get]
@@ -189,7 +194,7 @@ func (c *commentController) GetByID(w http.ResponseWriter, r *http.Request) {
 	commentIDStr := r.PathValue("commentID")
 	commentID, err := strconv.ParseUint(commentIDStr, 10, 64)
 	if err != nil {
-		resp.Error(err).Code(http.StatusBadRequest).Send(w)
+		resp.Error(helper.ErrInvalidID).Code(http.StatusBadRequest).Send(w)
 		return
 	}
 

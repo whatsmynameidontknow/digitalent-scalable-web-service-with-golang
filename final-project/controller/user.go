@@ -27,6 +27,7 @@ func NewUserController(userService service.UserService) *userController {
 // @Param request body dto.UserRegister true "required body"
 // @Success 201 {object} helper.Response[dto.UserCreateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 409 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /users/register [post]
 func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +70,7 @@ func (u *userController) Register(w http.ResponseWriter, r *http.Request) {
 // @Param request body dto.UserLogin true "required body"
 // @Success 200 {object} helper.Response[dto.UserLoginResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 401 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /users/login [post]
 func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
@@ -112,6 +114,8 @@ func (u *userController) Login(w http.ResponseWriter, r *http.Request) {
 // @Param request body dto.UserUpdate true "required body"
 // @Success 200 {object} helper.Response[dto.UserUpdateResponse]
 // @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
+// @Failure 409 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /users [put]
 func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
@@ -152,7 +156,7 @@ func (u *userController) Update(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Security BearerToken
 // @Success 200 {object} helper.Response[any]
-// @Failure 400 {object} helper.Response[any]
+// @Failure 404 {object} helper.Response[any]
 // @Failure 500 {object} helper.Response[any]
 // @Router /users [delete]
 func (u *userController) Delete(w http.ResponseWriter, r *http.Request) {

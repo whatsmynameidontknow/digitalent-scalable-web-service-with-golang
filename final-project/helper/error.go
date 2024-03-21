@@ -14,6 +14,7 @@ var (
 	ErrCommentNotFound     = errors.New("comment with given id not found")
 	ErrSocialMediaNotFound = errors.New("social media with given id not found")
 	ErrNotLoggedIn         = errors.New("you're not logged in")
+	ErrInvalidID           = errors.New("id must be a positive integer")
 )
 
 type ResponseError struct {

@@ -2,19 +2,21 @@ package main
 
 import (
 	"context"
-	"final-project/docs"
 	"final-project/helper"
 	"final-project/lib/config"
 	"final-project/lib/database"
 	"final-project/lib/logging"
 	"final-project/middleware"
 	"final-project/routes"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	_ "final-project/docs"
 
 	_ "github.com/lib/pq"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
@@ -23,14 +25,18 @@ import (
 // @title Hacktiv8-Golang final-project
 // @version 1.0
 // @description submission for final-project
-
+// @BasePath /api/v1
 // @securityDefinitions.apikey BearerToken
 // @in header
 // @name Authorization
-// @description Bearer token for authentication. Example: Bearer {token}
+// @description Bearer token for authentication. Format: Bearer {token}
 func main() {
+	var configFilePath string
+	flag.StringVar(&configFilePath, "json-config", "config.json", "path to json config file")
+	flag.Parse()
+
 	logger := logging.New(os.Stdout)
-	conf, err := config.Load("config.json")
+	conf, err := config.Load(configFilePath)
 	if err != nil {
 		logger.Error(err.Error(), "cause", "config.Load")
 		os.Exit(1)
@@ -56,13 +62,11 @@ func main() {
 	}
 
 	r := http.NewServeMux()
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", conf.App.Host, conf.App.Port)
-	docs.SwaggerInfo.BasePath = "/api/v1/"
 
 	{
 		r.Handle("/api/v1/", middleware.Logging(http.StripPrefix("/api/v1", api)))
 		r.HandleFunc("GET /swagger/", httpSwagger.Handler(
-			httpSwagger.URL(fmt.Sprintf("http://%s:%d/swagger/doc.json", conf.App.Host, conf.App.Port)),
+			httpSwagger.URL("/swagger/doc.json"),
 		))
 	}
 
