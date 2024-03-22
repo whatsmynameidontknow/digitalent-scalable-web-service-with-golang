@@ -860,7 +860,7 @@ paths:
       - BearerToken: []
       summary: get all social media
       tags:
-      - social-media
+      - socialmedias
     post:
       consumes:
       - application/json
@@ -894,7 +894,7 @@ paths:
       - BearerToken: []
       summary: create a new social media
       tags:
-      - social-media
+      - socialmedias
   /socialmedias/{socialMediaID}:
     delete:
       parameters:
@@ -930,7 +930,7 @@ paths:
       - BearerToken: []
       summary: delete social media
       tags:
-      - social-media
+      - socialmedias
     get:
       parameters:
       - description: social media ID
@@ -965,7 +965,7 @@ paths:
       - BearerToken: []
       summary: get social media by ID
       tags:
-      - social-media
+      - socialmedias
     put:
       consumes:
       - application/json
@@ -1008,7 +1008,7 @@ paths:
       - BearerToken: []
       summary: update social media
       tags:
-      - social-media
+      - socialmedias
   /users:
     delete:
       produces:

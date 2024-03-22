@@ -567,7 +567,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "get all social media",
                 "responses": {
@@ -604,7 +604,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "create a new social media",
                 "parameters": [
@@ -657,7 +657,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "get social media by ID",
                 "parameters": [
@@ -715,7 +715,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "update social media",
                 "parameters": [
@@ -779,7 +779,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "delete social media",
                 "parameters": [

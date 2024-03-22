@@ -560,7 +560,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "get all social media",
                 "responses": {
@@ -597,7 +597,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "create a new social media",
                 "parameters": [
@@ -650,7 +650,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "get social media by ID",
                 "parameters": [
@@ -708,7 +708,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "update social media",
                 "parameters": [
@@ -772,7 +772,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "social-media"
+                    "socialmedias"
                 ],
                 "summary": "delete social media",
                 "parameters": [
