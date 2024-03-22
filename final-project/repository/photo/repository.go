@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"final-project/model"
 	"final-project/repository"
-	"time"
 )
 
 type photoRepository struct {
@@ -19,11 +18,10 @@ func New(db *sql.DB) repository.PhotoRepository {
 func (r *photoRepository) Create(ctx context.Context, data model.Photo) (model.Photo, error) {
 	var (
 		photo model.Photo
-		now   = time.Now()
 		stmt  = `
 		INSERT INTO 
-			photo(title, caption, url, user_id, created_at, updated_at)
-			VALUES($1, $2, $3, $4, $5, $6)
+			photo(title, caption, url, user_id)
+			VALUES($1, $2, $3, $4)
 		RETURNING
 			id, 
 			title, 
@@ -34,7 +32,7 @@ func (r *photoRepository) Create(ctx context.Context, data model.Photo) (model.P
 		`
 	)
 
-	row := r.db.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, data.UserID, now, now)
+	row := r.db.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, data.UserID)
 	if err := row.Err(); err != nil {
 		return photo, err
 	}
@@ -62,7 +60,9 @@ func (r *photoRepository) FindAll(ctx context.Context) ([]model.Photo, error) {
 			u.email,
 			u.username
 		FROM photo p
-		INNER JOIN user_ u ON p.user_id=u.id`
+		INNER JOIN user_ u ON p.user_id=u.id
+		ORDER BY p.created_at DESC
+		`
 	)
 
 	rows, err := r.db.QueryContext(ctx, stmt)
@@ -84,16 +84,14 @@ func (r *photoRepository) FindAll(ctx context.Context) ([]model.Photo, error) {
 func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Photo) (model.Photo, error) {
 	var (
 		photo model.Photo
-		now   = time.Now()
 		stmt  = `
 		UPDATE 
 			photo
 		SET 
 			title=$1,
 			caption=$2,
-			url=$3,
-			updated_at=$4
-		WHERE id=$5
+			url=$3
+		WHERE id=$4
 		RETURNING 
 			id, 
 			title, 
@@ -104,7 +102,7 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 		`
 	)
 
-	row := tx.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, now, data.ID)
+	row := tx.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, data.ID)
 	if err := row.Err(); err != nil {
 		return photo, err
 	}

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"final-project/model"
 	"final-project/repository"
-	"time"
 )
 
 type userRepository struct {
@@ -21,11 +20,10 @@ func New(db *sql.DB) repository.UserRepository {
 func (r *userRepository) Create(ctx context.Context, data model.User) (model.User, error) {
 	var (
 		user model.User
-		now  = time.Now()
 		stmt = `
 		INSERT INTO
-			user_(username, email, password, age, created_at, updated_at)
-			VALUES($1, $2, $3, $4, $5, $6)
+			user_(username, email, password, age)
+			VALUES($1, $2, $3, $4)
 		RETURNING
 			id,
 			username,
@@ -34,7 +32,7 @@ func (r *userRepository) Create(ctx context.Context, data model.User) (model.Use
 		`
 	)
 
-	row := r.db.QueryRowContext(ctx, stmt, data.Username, data.Email, data.Password, data.Age, now, now)
+	row := r.db.QueryRowContext(ctx, stmt, data.Username, data.Email, data.Password, data.Age)
 	if err := row.Err(); err != nil {
 		return user, err
 	}
@@ -75,15 +73,13 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (model.U
 func (r *userRepository) Update(ctx context.Context, data model.User) (model.User, error) {
 	var (
 		user model.User
-		now  = time.Now()
 		stmt = `
 		UPDATE
 			user_
 		SET
 			email=$1,
-			username=$2,
-			updated_at=$3
-		WHERE id=$4
+			username=$2
+		WHERE id=$3
 		RETURNING
 			id,
 			username,
@@ -93,7 +89,7 @@ func (r *userRepository) Update(ctx context.Context, data model.User) (model.Use
 		`
 	)
 
-	row := r.db.QueryRowContext(ctx, stmt, data.Email, data.Username, now, data.ID)
+	row := r.db.QueryRowContext(ctx, stmt, data.Email, data.Username, data.ID)
 	if err := row.Err(); err != nil {
 		return user, err
 	}

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"final-project/model"
 	"final-project/repository"
-	"time"
 )
 
 type socialMediaRepository struct {
@@ -19,11 +18,10 @@ func New(db *sql.DB) repository.SocialMediaRepository {
 func (r *socialMediaRepository) Create(ctx context.Context, data model.SocialMedia) (model.SocialMedia, error) {
 	var (
 		socialMedia model.SocialMedia
-		now         = time.Now()
 		stmt        = `
 		INSERT INTO
-			social_media(user_id, name, url, created_at, updated_at)
-			VALUES($1, $2, $3, $4, $5)
+			social_media(user_id, name, url)
+			VALUES($1, $2, $3)
 		RETURNING
 			id,
 			name,
@@ -33,7 +31,7 @@ func (r *socialMediaRepository) Create(ctx context.Context, data model.SocialMed
 		`
 	)
 
-	row := r.db.QueryRowContext(ctx, stmt, data.UserID, data.Name, data.URL, now, now)
+	row := r.db.QueryRowContext(ctx, stmt, data.UserID, data.Name, data.URL)
 	if err := row.Err(); err != nil {
 		return socialMedia, err
 	}
@@ -84,15 +82,13 @@ func (r *socialMediaRepository) FindAll(ctx context.Context) ([]model.SocialMedi
 func (r *socialMediaRepository) Update(ctx context.Context, tx *sql.Tx, data model.SocialMedia) (model.SocialMedia, error) {
 	var (
 		socialMedia model.SocialMedia
-		now         = time.Now()
 		stmt        = `
 		UPDATE
 			social_media
 		SET
 			name=$1,
-			url=$2,
-			updated_at=$3
-		WHERE id=$4
+			url=$2
+		WHERE id=$3
 		RETURNING
 			id,
 			name,
@@ -102,7 +98,7 @@ func (r *socialMediaRepository) Update(ctx context.Context, tx *sql.Tx, data mod
 	`
 	)
 
-	row := tx.QueryRowContext(ctx, stmt, data.Name, data.URL, now, data.ID)
+	row := tx.QueryRowContext(ctx, stmt, data.Name, data.URL, data.ID)
 	if err := row.Err(); err != nil {
 		return socialMedia, err
 	}
@@ -155,7 +151,6 @@ func (r *socialMediaRepository) FindByID(ctx context.Context, id uint64) (model.
 		FROM social_media s
 		INNER JOIN user_ u ON s.user_id = u.id
 		WHERE s.id=$1
-		ORDER BY created_at DESC
 		`
 	)
 

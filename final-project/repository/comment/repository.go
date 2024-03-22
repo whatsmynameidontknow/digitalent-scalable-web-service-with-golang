@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"final-project/model"
 	"final-project/repository"
-	"time"
 )
 
 type commentRepository struct {
@@ -21,11 +20,10 @@ func New(db *sql.DB) repository.CommentRepository {
 func (r *commentRepository) Create(ctx context.Context, data model.Comment) (model.Comment, error) {
 	var (
 		comment model.Comment
-		now     = time.Now()
 		stmt    = `
 		INSERT INTO
-			comment(message, photo_id, user_id, created_at, updated_at)
-			VALUES($1, $2, $3, $4, $5) 
+			comment(message, photo_id, user_id)
+			VALUES($1, $2, $3) 
 		RETURNING
 			id,
 			message,
@@ -35,7 +33,7 @@ func (r *commentRepository) Create(ctx context.Context, data model.Comment) (mod
 		`
 	)
 
-	row := r.db.QueryRowContext(ctx, stmt, data.Message, data.PhotoID, data.UserID, now, now)
+	row := r.db.QueryRowContext(ctx, stmt, data.Message, data.PhotoID, data.UserID)
 	if err := row.Err(); err != nil {
 		return comment, err
 	}
@@ -95,14 +93,12 @@ func (r *commentRepository) FindAll(ctx context.Context) ([]model.Comment, error
 func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.Comment) (model.Comment, error) {
 	var (
 		comment model.Comment
-		now     = time.Now()
 		stmt    = `
 		UPDATE 
 			comment
 		SET 
-			message=$1, 
-			updated_at=$2
-		WHERE id=$3
+			message=$1
+		WHERE id=$2
 		RETURNING 
 			id, 
 			message, 
@@ -112,7 +108,7 @@ func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.C
 		`
 	)
 
-	row := tx.QueryRowContext(ctx, stmt, data.Message, now, data.ID)
+	row := tx.QueryRowContext(ctx, stmt, data.Message, data.ID)
 	if err := row.Err(); err != nil {
 		return comment, err
 	}
