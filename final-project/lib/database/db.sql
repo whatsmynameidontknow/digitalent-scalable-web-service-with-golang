@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS social_media (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- CREATE updated_at_trigger
+-- CREATE update_updated_at_column FUNCTION
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
