@@ -62,9 +62,12 @@ func main() {
 	}
 
 	r := http.NewServeMux()
+	contentTypeMW := middleware.NewContentTypeMiddleware(map[string]struct{}{
+		"application/json": {},
+	})
 
 	{
-		r.Handle("/api/v1/", middleware.Logging(http.StripPrefix("/api/v1", api)))
+		r.Handle("/api/v1/", middleware.Logging(contentTypeMW(http.StripPrefix("/api/v1", api))))
 		r.HandleFunc("GET /swagger/", httpSwagger.Handler(
 			httpSwagger.URL("/swagger/doc.json"),
 		))
