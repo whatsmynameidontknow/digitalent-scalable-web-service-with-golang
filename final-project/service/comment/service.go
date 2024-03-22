@@ -128,7 +128,7 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
+			return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
@@ -167,7 +167,7 @@ func (s *commentService) Delete(ctx context.Context, commentID uint64) (err erro
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
-			return helper.NewResponseError(helper.ErrCommentNotFound, http.StatusNotFound)
+			return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 		}
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}

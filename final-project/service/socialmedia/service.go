@@ -112,7 +112,7 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrSocialMediaNotFound, http.StatusNotFound)
+			return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
@@ -151,7 +151,7 @@ func (s *socialMediaService) Delete(ctx context.Context, id uint64) (err error) 
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
-			return helper.NewResponseError(helper.ErrSocialMediaNotFound, http.StatusNotFound)
+			return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 		}
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}

@@ -130,7 +130,7 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
+			return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
@@ -170,7 +170,7 @@ func (s *photoService) Delete(ctx context.Context, id uint64) (err error) {
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
-			return helper.NewResponseError(helper.ErrPhotoNotFound, http.StatusNotFound)
+			return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
 		}
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
