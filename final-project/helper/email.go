@@ -40,7 +40,6 @@ func IsValidEmail(email string, allowLocal bool) bool {
 	validDomain := !(split[len(split)-1][0] >= '0' && split[len(split)-1][0] <= '9') || split[len(split)-1] == ""
 
 	if !allowLocal {
-		split := strings.Split(host, ".")
 		validDomain = validDomain && len(split) > 1
 	}
 

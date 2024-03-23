@@ -39,8 +39,8 @@ goarch: amd64
 pkg: final-project/helper
 cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
 BenchmarkStackOverflowPattern
-BenchmarkStackOverflowPattern-8   	  367700	      3990 ns/op	       0 B/op	       0 allocs/op
+BenchmarkStackOverflowPattern-8   	  409266	      3067 ns/op	       0 B/op	       0 allocs/op
 BenchmarkGoMailPKGNoLocal
-BenchmarkGoMailPKGNoLocal-8       	  273601	      4965 ns/op	    1264 B/op	      40 allocs/op
+BenchmarkGoMailPKGNoLocal-8       	  298306	      3489 ns/op	    1104 B/op	      38 allocs/op
 PASS
-ok  	final-project/helper	3.283s
+ok  	final-project/helper	2.643s
