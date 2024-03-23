@@ -1,0 +1,46 @@
+=== RUN   TestStackOverflowPattern
+=== RUN   TestStackOverflowPattern/budi.wow.keren@gmail.com
+=== RUN   TestStackOverflowPattern/budi..wow@gmail.com
+=== RUN   TestStackOverflowPattern/budi@wow.keren.sekali.com
+=== RUN   TestStackOverflowPattern/budi@wow.keren..sekali.com
+=== RUN   TestStackOverflowPattern/budi.wow+awwww@wow.keren.sekali.com
+=== RUN   TestStackOverflowPattern/budi.wow%aww@wow.keren.sekali.com
+=== RUN   TestStackOverflowPattern/budi@wow.1aa
+=== RUN   TestStackOverflowPattern/budi@wow.aa1
+--- PASS: TestStackOverflowPattern (0.00s)
+    --- PASS: TestStackOverflowPattern/budi.wow.keren@gmail.com (0.00s)
+    --- PASS: TestStackOverflowPattern/budi..wow@gmail.com (0.00s)
+    --- PASS: TestStackOverflowPattern/budi@wow.keren.sekali.com (0.00s)
+    --- PASS: TestStackOverflowPattern/budi@wow.keren..sekali.com (0.00s)
+    --- PASS: TestStackOverflowPattern/budi.wow+awwww@wow.keren.sekali.com (0.00s)
+    --- PASS: TestStackOverflowPattern/budi.wow%aww@wow.keren.sekali.com (0.00s)
+    --- PASS: TestStackOverflowPattern/budi@wow.1aa (0.00s)
+    --- PASS: TestStackOverflowPattern/budi@wow.aa1 (0.00s)
+=== RUN   TestGoMailPKGNoLocal
+=== RUN   TestGoMailPKGNoLocal/budi.wow.keren@gmail.com
+=== RUN   TestGoMailPKGNoLocal/budi..wow@gmail.com
+=== RUN   TestGoMailPKGNoLocal/budi@wow.keren.sekali.com
+=== RUN   TestGoMailPKGNoLocal/budi@wow.keren..sekali.com
+=== RUN   TestGoMailPKGNoLocal/budi.wow+awwww@wow.keren.sekali.com
+=== RUN   TestGoMailPKGNoLocal/budi.wow%aww@wow.keren.sekali.com
+=== RUN   TestGoMailPKGNoLocal/budi@wow.1aa
+=== RUN   TestGoMailPKGNoLocal/budi@wow.aa1
+--- PASS: TestGoMailPKGNoLocal (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi.wow.keren@gmail.com (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi..wow@gmail.com (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi@wow.keren.sekali.com (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi@wow.keren..sekali.com (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi.wow+awwww@wow.keren.sekali.com (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi.wow%aww@wow.keren.sekali.com (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi@wow.1aa (0.00s)
+    --- PASS: TestGoMailPKGNoLocal/budi@wow.aa1 (0.00s)
+goos: windows
+goarch: amd64
+pkg: final-project/helper
+cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+BenchmarkStackOverflowPattern
+BenchmarkStackOverflowPattern-8   	  367700	      3990 ns/op	       0 B/op	       0 allocs/op
+BenchmarkGoMailPKGNoLocal
+BenchmarkGoMailPKGNoLocal-8       	  273601	      4965 ns/op	    1264 B/op	      40 allocs/op
+PASS
+ok  	final-project/helper	3.283s

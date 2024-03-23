@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+var isValidEmail = helper.IsValidEmailRegex(helper.StackOverflowEmailPattern)
+
 type UserRequest struct {
 	Username string `json:"username" example:"budiganteng"`
 	Email    string `json:"email" example:"budi@rocketmail.com"`
@@ -20,7 +22,7 @@ func (u UserRequest) ValidateCreate() error {
 		errs = errors.Join(errs, errors.New("email can't be empty"))
 	}
 
-	if !helper.IsValidEmail(u.Email) {
+	if !isValidEmail(u.Email) {
 		errs = errors.Join(errs, errors.New("invalid email format"))
 	}
 
@@ -29,7 +31,7 @@ func (u UserRequest) ValidateCreate() error {
 	}
 
 	if len(u.Username) > 100 {
-		errs = errors.Join(errs, errors.New("username can't be more than 50 characters"))
+		errs = errors.Join(errs, errors.New("username can't be more than 100 characters"))
 	}
 
 	if u.Password == "" {
@@ -66,8 +68,16 @@ func (u UserRequest) ValidateLogin() error {
 		errs = errors.Join(errs, errors.New("email can't be empty"))
 	}
 
+	if !isValidEmail(u.Email) {
+		errs = errors.Join(errs, errors.New("invalid email format"))
+	}
+
 	if u.Password == "" {
 		errs = errors.Join(errs, errors.New("password can't be empty"))
+	}
+
+	if len(u.Password) < 6 {
+		errs = errors.Join(errs, errors.New("password must be at least 6 characters"))
 	}
 
 	return errs
@@ -92,7 +102,7 @@ func (u UserRequest) ValidateUpdate() error {
 		errs = errors.Join(errs, errors.New("email can't be empty"))
 	}
 
-	if !helper.IsValidEmail(u.Email) {
+	if !isValidEmail(u.Email) {
 		errs = errors.Join(errs, errors.New("invalid email format"))
 	}
 
