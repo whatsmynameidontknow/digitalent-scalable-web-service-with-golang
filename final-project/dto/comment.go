@@ -2,6 +2,7 @@ package dto
 
 import (
 	"errors"
+	"final-project/helper"
 	"time"
 )
 
@@ -14,11 +15,11 @@ func (c CommentRequest) ValidateCreate() error {
 	var errs error
 
 	if c.Message == "" {
-		errs = errors.Join(errs, errors.New("message can't be empty"))
+		errs = errors.Join(errs, helper.ErrEmptyMessage)
 	}
 
 	if c.PhotoID == 0 {
-		errs = errors.Join(errs, errors.New("photo_id can't be empty"))
+		errs = errors.Join(errs, helper.ErrEmptyPhotoID)
 	}
 
 	return errs
@@ -47,7 +48,7 @@ func (c CommentRequest) ValidateUpdate() error {
 	var errs error
 
 	if c.Message == "" {
-		errs = errors.Join(errs, errors.New("message can't be empty"))
+		errs = errors.Join(errs, helper.ErrEmptyMessage)
 	}
 
 	return errs

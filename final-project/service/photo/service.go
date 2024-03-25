@@ -37,7 +37,7 @@ func (s *photoService) Create(ctx context.Context, data dto.PhotoRequest) (dto.P
 
 	photo := model.Photo{
 		Title:  data.Title,
-		URL:    data.PhotoURL,
+		URL:    data.URL,
 		UserID: uint64(userID),
 	}
 
@@ -55,7 +55,7 @@ func (s *photoService) Create(ctx context.Context, data dto.PhotoRequest) (dto.P
 	resp = dto.PhotoCreateResponse{
 		ID:        photo.ID,
 		Title:     photo.Title,
-		PhotoURL:  photo.URL,
+		URL:       photo.URL,
 		UserID:    photo.UserID,
 		CreatedAt: photo.CreatedAt,
 	}
@@ -82,7 +82,7 @@ func (s *photoService) GetAll(ctx context.Context) ([]dto.PhotoResponse, error) 
 		item := dto.PhotoResponse{
 			ID:        photo.ID,
 			Title:     photo.Title,
-			PhotoURL:  photo.URL,
+			URL:       photo.URL,
 			UserID:    photo.UserID,
 			CreatedAt: photo.CreatedAt,
 			UpdatedAt: photo.UpdatedAt,
@@ -113,7 +113,7 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	photo := model.Photo{
 		ID:    id,
 		Title: data.Title,
-		URL:   data.PhotoURL,
+		URL:   data.URL,
 		Caption: sql.NullString{
 			String: data.Caption,
 			Valid:  data.Caption != "",
@@ -144,7 +144,7 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 		ID:        photo.ID,
 		Title:     photo.Title,
 		Caption:   photo.Caption.String,
-		PhotoURL:  photo.URL,
+		URL:       photo.URL,
 		UserID:    photo.UserID,
 		UpdatedAt: photo.UpdatedAt,
 	}
@@ -198,7 +198,7 @@ func (s *photoService) GetByID(ctx context.Context, id uint64) (dto.PhotoRespons
 	resp = dto.PhotoResponse{
 		ID:        photo.ID,
 		Title:     photo.Title,
-		PhotoURL:  photo.URL,
+		URL:       photo.URL,
 		UserID:    photo.UserID,
 		CreatedAt: photo.CreatedAt,
 		UpdatedAt: photo.UpdatedAt,

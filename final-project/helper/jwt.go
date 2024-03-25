@@ -1,7 +1,6 @@
 package helper
 
 import (
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -30,7 +29,7 @@ func GenerateJWT(userID uint64) (string, error) {
 }
 
 func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
-	t, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+	t, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
@@ -42,7 +41,7 @@ func VerifyJWT(tokenString string) (jwt.MapClaims, error) {
 
 	claims, ok := t.Claims.(jwt.MapClaims)
 	if !ok || !t.Valid {
-		return nil, errors.New("invalid token")
+		return nil, ErrInvalidJWT
 	}
 
 	return claims, nil

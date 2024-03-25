@@ -15,8 +15,8 @@ func InitUserRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	userService := userservice.New(userRepo, logger)
 	userController := controller.NewUserController(userService)
 
-	r.Handle("PUT /users", middleware.Auth(http.HandlerFunc(userController.Update)))
-	r.HandleFunc("POST /users/register", userController.Register)
-	r.HandleFunc("POST /users/login", userController.Login)
+	r.Handle("POST /users/register", middleware.AllowedContentType(http.HandlerFunc(userController.Register)))
+	r.Handle("POST /users/login", middleware.AllowedContentType(http.HandlerFunc(userController.Login)))
+	r.Handle("PUT /users", middleware.AllowedContentType(middleware.Auth(http.HandlerFunc(userController.Update))))
 	r.Handle("DELETE /users", middleware.Auth(http.HandlerFunc(userController.Delete)))
 }

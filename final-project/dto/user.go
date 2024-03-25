@@ -19,36 +19,28 @@ func (u UserRequest) ValidateCreate() error {
 	var errs error
 
 	if u.Email == "" {
-		errs = errors.Join(errs, errors.New("email can't be empty"))
-	}
-
-	if !isValidEmail(u.Email) {
-		errs = errors.Join(errs, errors.New("invalid email format"))
+		errs = errors.Join(errs, helper.ErrEmptyEmail)
+	} else if !isValidEmail(u.Email) {
+		errs = errors.Join(errs, helper.ErrInvalidEmail)
 	}
 
 	if u.Username == "" {
-		errs = errors.Join(errs, errors.New("username can't be empty"))
-	}
-
-	if len(u.Username) > 100 {
-		errs = errors.Join(errs, errors.New("username can't be more than 100 characters"))
+		errs = errors.Join(errs, helper.ErrEmptyUsername)
+	} else if len(u.Username) > 100 {
+		errs = errors.Join(errs, helper.ErrUsernameTooLong)
 	}
 
 	if u.Password == "" {
-		errs = errors.Join(errs, errors.New("password can't be empty"))
-	}
-
-	if len(u.Password) < 6 {
-		errs = errors.Join(errs, errors.New("password must be at least 6 characters"))
-	}
-
-	// bcrypt.GenerateFromPassword only accepts at most 72 characters
-	if len(u.Password) > 72 {
-		errs = errors.Join(errs, errors.New("password must be at most 72 characters"))
+		errs = errors.Join(errs, helper.ErrEmptyPassword)
+	} else if u.Password != "" && len(u.Password) < 6 {
+		errs = errors.Join(errs, helper.ErrPasswordTooShort)
+	} else if len(u.Password) > 72 {
+		// bcrypt.GenerateFromPassword only accepts at most 72 characters
+		errs = errors.Join(errs, helper.ErrPasswordTooLong)
 	}
 
 	if u.Age < 8 {
-		errs = errors.Join(errs, errors.New("age must be at least 8 years old"))
+		errs = errors.Join(errs, helper.ErrAgeTooYoung)
 	}
 
 	return errs
@@ -65,19 +57,15 @@ func (u UserRequest) ValidateLogin() error {
 	var errs error
 
 	if u.Email == "" {
-		errs = errors.Join(errs, errors.New("email can't be empty"))
-	}
-
-	if !isValidEmail(u.Email) {
-		errs = errors.Join(errs, errors.New("invalid email format"))
+		errs = errors.Join(errs, helper.ErrEmptyEmail)
+	} else if !isValidEmail(u.Email) {
+		errs = errors.Join(errs, helper.ErrInvalidEmail)
 	}
 
 	if u.Password == "" {
-		errs = errors.Join(errs, errors.New("password can't be empty"))
-	}
-
-	if len(u.Password) < 6 {
-		errs = errors.Join(errs, errors.New("password must be at least 6 characters"))
+		errs = errors.Join(errs, helper.ErrEmptyPassword)
+	} else if u.Password != "" && len(u.Password) < 6 {
+		errs = errors.Join(errs, helper.ErrPasswordTooShort)
 	}
 
 	return errs
@@ -91,19 +79,15 @@ func (u UserRequest) ValidateUpdate() error {
 	var errs error
 
 	if u.Username == "" {
-		errs = errors.Join(errs, errors.New("username can't be empty"))
-	}
-
-	if len(u.Username) > 100 {
-		errs = errors.Join(errs, errors.New("username can't be more than 50 characters"))
+		errs = errors.Join(errs, helper.ErrEmptyUsername)
+	} else if len(u.Username) > 100 {
+		errs = errors.Join(errs, helper.ErrUsernameTooLong)
 	}
 
 	if u.Email == "" {
-		errs = errors.Join(errs, errors.New("email can't be empty"))
-	}
-
-	if !isValidEmail(u.Email) {
-		errs = errors.Join(errs, errors.New("invalid email format"))
+		errs = errors.Join(errs, helper.ErrEmptyEmail)
+	} else if !isValidEmail(u.Email) {
+		errs = errors.Join(errs, helper.ErrInvalidEmail)
 	}
 
 	return errs

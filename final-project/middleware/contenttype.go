@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+var AllowedContentType = NewContentTypeMiddleware(map[string]struct{}{
+	"application/json": {},
+})
+
 func NewContentTypeMiddleware(allowedContentTypes map[string]struct{}) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

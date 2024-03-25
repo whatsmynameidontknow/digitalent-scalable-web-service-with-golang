@@ -15,15 +15,13 @@ func (s SocialMediaRequest) ValidateCreate() error {
 	var errs error
 
 	if s.Name == "" {
-		errs = errors.Join(errs, errors.New("name can't be empty"))
+		errs = errors.Join(errs, helper.ErrEmptyName)
 	}
 
 	if s.URL == "" {
-		errs = errors.Join(errs, errors.New("social media url can't be empty"))
-	}
-
-	if !helper.IsValidURL(s.URL) {
-		errs = errors.Join(errs, errors.New("invalid social media url format"))
+		errs = errors.Join(errs, helper.ErrEmptySocialMediaURL)
+	} else if !helper.IsValidURL(s.URL) {
+		errs = errors.Join(errs, helper.ErrInvalidSocialMediaURL)
 	}
 
 	return errs
@@ -51,15 +49,13 @@ func (s SocialMediaRequest) ValidateUpdate() error {
 	var errs error
 
 	if s.Name == "" {
-		errs = errors.Join(errs, errors.New("name can't be empty"))
+		errs = errors.Join(errs, helper.ErrEmptyName)
 	}
 
 	if s.URL == "" {
-		errs = errors.Join(errs, errors.New("social media url can't be empty"))
-	}
-
-	if !helper.IsValidURL(s.URL) {
-		errs = errors.Join(errs, errors.New("invalid social media url format"))
+		errs = errors.Join(errs, helper.ErrEmptySocialMediaURL)
+	} else if !helper.IsValidURL(s.URL) {
+		errs = errors.Join(errs, helper.ErrInvalidSocialMediaURL)
 	}
 
 	return errs

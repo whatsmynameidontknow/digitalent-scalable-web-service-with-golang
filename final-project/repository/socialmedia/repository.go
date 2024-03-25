@@ -118,7 +118,7 @@ func (r *socialMediaRepository) Delete(ctx context.Context, tx *sql.Tx, id uint6
 		DELETE FROM
 			social_media
 		WHERE id=$1
-		RETURNING id
+		RETURNING user_id
 		`
 	)
 

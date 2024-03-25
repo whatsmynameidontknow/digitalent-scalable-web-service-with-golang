@@ -15,9 +15,9 @@ func InitSocialMediaRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	socialMediaService := socialmediaservice.New(socialMediaRepo, db, logger)
 	socialMediaController := controller.NewSocialMediaController(socialMediaService)
 
-	r.Handle("POST /socialmedias", middleware.Auth(http.HandlerFunc(socialMediaController.Create)))
+	r.Handle("POST /socialmedias", middleware.AllowedContentType(middleware.Auth(http.HandlerFunc(socialMediaController.Create))))
 	r.Handle("GET /socialmedias", middleware.Auth(http.HandlerFunc(socialMediaController.GetAll)))
-	r.Handle("PUT /socialmedias/{socialMediaID}", middleware.Auth(http.HandlerFunc(socialMediaController.Update)))
+	r.Handle("PUT /socialmedias/{socialMediaID}", middleware.AllowedContentType(middleware.Auth(http.HandlerFunc(socialMediaController.Update))))
 	r.Handle("DELETE /socialmedias/{socialMediaID}", middleware.Auth(http.HandlerFunc(socialMediaController.Delete)))
 	r.Handle("GET /socialmedias/{socialMediaID}", middleware.Auth(http.HandlerFunc(socialMediaController.GetByID)))
 }

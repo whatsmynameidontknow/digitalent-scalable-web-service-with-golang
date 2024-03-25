@@ -93,11 +93,11 @@ func (s *commentService) GetAll(ctx context.Context) ([]dto.CommentResponse, err
 				Email:    comment.User.Email,
 			},
 			Photo: dto.Photo{
-				ID:       comment.PhotoID,
-				Title:    comment.Photo.Title,
-				Caption:  comment.Photo.Caption.String,
-				PhotoURL: comment.Photo.URL,
-				UserID:   comment.Photo.UserID,
+				ID:      comment.PhotoID,
+				Title:   comment.Photo.Title,
+				Caption: comment.Photo.Caption.String,
+				URL:     comment.Photo.URL,
+				UserID:  comment.Photo.UserID,
 			},
 		})
 	}
@@ -205,11 +205,11 @@ func (s *commentService) GetByID(ctx context.Context, commentID uint64) (dto.Com
 			Email:    comment.User.Email,
 		},
 		Photo: dto.Photo{
-			ID:       comment.PhotoID,
-			Title:    comment.Photo.Title,
-			Caption:  comment.Photo.Caption.String,
-			PhotoURL: comment.Photo.URL,
-			UserID:   comment.Photo.UserID,
+			ID:      comment.PhotoID,
+			Title:   comment.Photo.Title,
+			Caption: comment.Photo.Caption.String,
+			URL:     comment.Photo.URL,
+			UserID:  comment.Photo.UserID,
 		},
 	}
 
