@@ -112,14 +112,14 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if socialMedia.UserID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the social media", "cause", "socialMedia.UserID != uint64(userID)")
-		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	resp = dto.SocialMediaUpdateResponse{
@@ -151,14 +151,14 @@ func (s *socialMediaService) Delete(ctx context.Context, id uint64) (err error) 
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
-			return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+			return helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if ownerID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the social media", "cause", "ownerID != uint64(userID)")
-		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+		return helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	return nil

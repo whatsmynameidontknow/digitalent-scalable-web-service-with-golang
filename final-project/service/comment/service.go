@@ -128,14 +128,14 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if comment.UserID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the comment", "cause", "comment.UserID != uint64(userID)")
-		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	resp = dto.CommentUpdateResponse{
@@ -167,14 +167,14 @@ func (s *commentService) Delete(ctx context.Context, commentID uint64) (err erro
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
-			return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+			return helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if ownerID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the comment", "cause", "ownerID != uint64(userID)")
-		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+		return helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	return nil

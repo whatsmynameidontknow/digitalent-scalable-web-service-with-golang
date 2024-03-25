@@ -130,14 +130,14 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if photo.UserID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the photo", "cause", "photo.UserID != uint64(userID)")
-		return resp, helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	resp = dto.PhotoUpdateResponse{
@@ -170,14 +170,14 @@ func (s *photoService) Delete(ctx context.Context, id uint64) (err error) {
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Delete")
 		if errors.Is(err, sql.ErrNoRows) {
-			return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+			return helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	if ownerID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the photo", "cause", "ownerID != uint64(userID)")
-		return helper.NewResponseError(helper.ErrUnauthorized, http.StatusUnauthorized)
+		return helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	return nil

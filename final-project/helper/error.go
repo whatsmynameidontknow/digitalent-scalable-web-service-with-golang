@@ -6,7 +6,7 @@ import (
 
 var (
 	ErrInternal              = errors.New("there's something wrong. it's our fault, not yours")
-	ErrUnauthorized          = errors.New("you're not allowed to perform this action")
+	ErrNotAllowed            = errors.New("you're not allowed to perform this action")
 	ErrDuplicate             = errors.New("user with given username or email already exists")
 	ErrInvalidLogin          = errors.New("invalid email or password")
 	ErrUserNotFound          = errors.New("user not found")
