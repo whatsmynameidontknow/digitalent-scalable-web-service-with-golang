@@ -20,6 +20,14 @@ var testcases = []testcase{
 	{"/api///v1///v2//", false},
 	{"//api/v1/v2/", false},
 	{"api", false},
+	{"api/v1", false},
+	{"/?/", false},
+	{"/api/v1/?/", false},
+	{"/api/v1/#/", false},
+	{"/api/v1/#/v2/", false},
+	{"/api/./?/#/", false},
+	{"/api/v1/./?/#/", false},
+	{"/#/", false},
 }
 
 func TestValidBasePath(t *testing.T) {
@@ -29,7 +37,7 @@ func TestValidBasePath(t *testing.T) {
 			conf := App{BasePath: tc.in}
 			got := conf.isValidBasePath()
 			if got != tc.out {
-				t.Errorf("conf.App.BasePath = %s > conf.isValidBasePath() = %t, want %t", tc.in, tc.out, got)
+				t.Errorf("conf.App.BasePath = %s > conf.isValidBasePath() = %t, want %t", tc.in, got, tc.out)
 			}
 		})
 	}

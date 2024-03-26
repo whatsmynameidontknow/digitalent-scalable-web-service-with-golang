@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"final-project/helper"
 	"fmt"
+	"net/url"
 	"os"
 	"regexp"
 )
@@ -34,9 +35,9 @@ type App struct {
 }
 
 func (app App) isValidBasePath() bool {
-	re := regexp.MustCompile(`^\/([^/]+\/)*$|^\/$`)
+	url, err := url.Parse(app.BasePath)
 
-	return re.MatchString(app.BasePath)
+	return err == nil && url.Path == app.BasePath && regexp.MustCompile(`^\/([a-zA-Z0-9-]+\/)*$|^\/$`).MatchString(app.BasePath)
 }
 
 func Load(path string) (Config, error) {
