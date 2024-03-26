@@ -17,13 +17,15 @@ func Auth(next http.Handler) http.Handler {
 			resp.Error(helper.ErrNotLoggedIn).Code(http.StatusUnauthorized).Send(w)
 			return
 		}
-		splitToken := strings.Split(token, "Bearer ")
-		if len(splitToken) != 2 {
+
+		if !strings.HasPrefix(token, "Bearer ") {
 			logger.Warn("invalid token format")
 			resp.Error(helper.ErrNotLoggedIn).Code(http.StatusUnauthorized).Send(w)
 			return
 		}
-		token = splitToken[1]
+
+		token = strings.TrimPrefix(token, "Bearer ")
+
 		claims, err := helper.VerifyJWT(token)
 		if err != nil {
 			logger.Error("failed to verify token", "error", err.Error())

@@ -2,8 +2,10 @@ package config
 
 import (
 	"encoding/json"
+	"final-project/helper"
 	"fmt"
 	"os"
+	"regexp"
 )
 
 type Config struct {
@@ -28,6 +30,13 @@ type App struct {
 	Port         uint   `json:"port"`
 	JWTSecret    string `json:"jwt_secret"`
 	JWTExpiresIn string `json:"jwt_expires_in"`
+	BasePath     string `json:"base_path"`
+}
+
+func (app App) isValidBasePath() bool {
+	re := regexp.MustCompile(`^\/([^/]+\/)*$|^\/$`)
+
+	return re.MatchString(app.BasePath)
 }
 
 func Load(path string) (Config, error) {
@@ -44,6 +53,10 @@ func Load(path string) (Config, error) {
 	err = json.NewDecoder(confFile).Decode(&conf)
 	if err != nil {
 		return conf, err
+	}
+
+	if !conf.App.isValidBasePath() {
+		return conf, helper.ErrInvalidBasePath
 	}
 
 	return conf, nil

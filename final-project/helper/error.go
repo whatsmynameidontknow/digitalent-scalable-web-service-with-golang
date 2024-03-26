@@ -34,6 +34,7 @@ var (
 	ErrEmptySocialMediaURL   = errors.New("social_media_url can't be empty")
 	ErrInvalidSocialMediaURL = errors.New("invalid social_media_url format")
 	ErrInvalidJWT            = errors.New("invalid JWT token")
+	ErrInvalidBasePath       = errors.New("base_path must start and end with a single '/'")
 )
 
 type ResponseError struct {

@@ -13,10 +13,11 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
-	_ "final-project/docs"
+	docs "final-project/docs"
 
 	_ "github.com/lib/pq"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
@@ -25,7 +26,6 @@ import (
 // @title Hacktiv8-Golang final-project
 // @version 1.0
 // @description submission for final-project
-// @BasePath /api/v1
 // @securityDefinitions.apikey BearerToken
 // @in header
 // @name Authorization
@@ -62,9 +62,9 @@ func main() {
 	}
 
 	r := http.NewServeMux()
-
+	docs.SwaggerInfo.BasePath = conf.App.BasePath
 	{
-		r.Handle("/api/v1/", middleware.Logging((http.StripPrefix("/api/v1", api))))
+		r.Handle(conf.App.BasePath, middleware.Logging((http.StripPrefix(strings.TrimSuffix(conf.App.BasePath, "/"), api))))
 		r.HandleFunc("GET /swagger/", httpSwagger.Handler(
 			httpSwagger.URL("/swagger/doc.json"),
 		))
