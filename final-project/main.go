@@ -35,7 +35,7 @@ func main() {
 	flag.StringVar(&configFilePath, "json-config", "config.json", "path to json config file")
 	flag.Parse()
 
-	logger := logging.New(os.Stdout)
+	logger := logging.New(os.Stderr)
 	conf, err := config.Load(configFilePath)
 	if err != nil {
 		logger.Error(err.Error(), "cause", "config.Load")

@@ -8,7 +8,6 @@ import (
 	"final-project/helper"
 	"final-project/model"
 	"final-project/repository"
-	"final-project/service"
 	"log/slog"
 	"net/http"
 )
@@ -19,7 +18,7 @@ type photoService struct {
 	logger    *slog.Logger
 }
 
-func New(photoRepo repository.PhotoRepository, db *sql.DB, logger *slog.Logger) service.PhotoService {
+func New(photoRepo repository.PhotoRepository, db *sql.DB, logger *slog.Logger) *photoService {
 	return &photoService{photoRepo, db, logger}
 }
 
@@ -110,15 +109,25 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
-	photo := model.Photo{
-		ID:    id,
-		Title: data.Title,
-		URL:   data.URL,
-		Caption: sql.NullString{
-			String: data.Caption,
-			Valid:  data.Caption != "",
-		},
+	photo, err := s.photoRepo.FindByID(ctx, id)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.FindByID")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
+
+	if photo.UserID != uint64(userID) {
+		s.logger.ErrorContext(ctx, "user is not the owner of the photo", "cause", "photo.UserID != uint64(userID)")
+		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+	}
+
+	photo.Title = data.Title
+	photo.URL = data.URL
+	photo.Caption.String = data.Caption
+	photo.Caption.Valid = true
+
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
@@ -133,11 +142,6 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
-	}
-
-	if photo.UserID != uint64(userID) {
-		s.logger.ErrorContext(ctx, "user is not the owner of the photo", "cause", "photo.UserID != uint64(userID)")
-		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 	}
 
 	resp = dto.PhotoUpdateResponse{

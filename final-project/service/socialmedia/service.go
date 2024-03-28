@@ -8,7 +8,6 @@ import (
 	"final-project/helper"
 	"final-project/model"
 	"final-project/repository"
-	"final-project/service"
 	"log/slog"
 	"net/http"
 )
@@ -19,7 +18,7 @@ type socialMediaService struct {
 	logger          *slog.Logger
 }
 
-func New(socialMediaRepo repository.SocialMediaRepository, db *sql.DB, logger *slog.Logger) service.SocialMediaService {
+func New(socialMediaRepo repository.SocialMediaRepository, db *sql.DB, logger *slog.Logger) *socialMediaService {
 	return &socialMediaService{socialMediaRepo, db, logger}
 }
 
@@ -89,28 +88,15 @@ func (s *socialMediaService) GetAll(ctx context.Context) ([]dto.SocialMediaRespo
 }
 
 func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.SocialMediaRequest) (resp dto.SocialMediaUpdateResponse, err error) {
-	var socialMedia model.SocialMedia
-
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
 		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
-	tx, err := s.db.BeginTx(ctx, nil)
+	socialMedia, err := s.socialMediaRepo.FindByID(ctx, id)
 	if err != nil {
-		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
-		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
-	}
-	defer helper.RollbackOrCommit(tx, &err, s.logger)
-
-	socialMedia.ID = id
-	socialMedia.Name = data.Name
-	socialMedia.URL = data.URL
-
-	socialMedia, err = s.socialMediaRepo.Update(ctx, tx, socialMedia)
-	if err != nil {
-		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Update")
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.FindByID")
 		if errors.Is(err, sql.ErrNoRows) {
 			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
@@ -120,6 +106,25 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 	if socialMedia.UserID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the social media", "cause", "socialMedia.UserID != uint64(userID)")
 		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+	}
+
+	socialMedia.Name = data.Name
+	socialMedia.URL = data.URL
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
+
+	socialMedia, err = s.socialMediaRepo.Update(ctx, tx, socialMedia)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Update")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	resp = dto.SocialMediaUpdateResponse{

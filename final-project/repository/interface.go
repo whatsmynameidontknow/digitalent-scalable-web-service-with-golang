@@ -9,8 +9,9 @@ import (
 type UserRepository interface {
 	Create(context.Context, model.User) (model.User, error)
 	FindByEmail(context.Context, string) (model.User, error)
-	Update(context.Context, model.User) (model.User, error)
+	Update(context.Context, *sql.Tx, model.User) (model.User, error)
 	Delete(context.Context, uint64) error
+	FindByID(context.Context, uint64) (model.User, error)
 }
 
 type PhotoRepository interface {

@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS user_ (
 
 CREATE INDEX IF NOT EXISTS idx_user_username ON user_(username);
 CREATE INDEX IF NOT EXISTS idx_user_email ON user_(email);
+CREATE INDEX IF NOT EXISTS idx_user_updated_at ON user_(updated_at);
 
 -- CREATE photo TABLE
 CREATE TABLE IF NOT EXISTS photo (
@@ -23,6 +24,8 @@ CREATE TABLE IF NOT EXISTS photo (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX IF NOT EXISTS idx_photo_updated_at ON photo(updated_at);
+
 -- CREATE comment TABLE
 CREATE TABLE IF NOT EXISTS comment (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -32,6 +35,8 @@ CREATE TABLE IF NOT EXISTS comment (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_comment_updated_at ON comment(updated_at);
 
 -- CREATE social_media TABLE
 CREATE TABLE IF NOT EXISTS social_media (
@@ -43,21 +48,4 @@ CREATE TABLE IF NOT EXISTS social_media (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- CREATE update_updated_at_column FUNCTION
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
--- CREATE TRIGGER
-DROP TRIGGER IF EXISTS update_user_updated_at ON user_;
-CREATE TRIGGER update_user_updated_at BEFORE UPDATE ON user_ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-DROP TRIGGER IF EXISTS update_photo_updated_at ON photo;
-CREATE TRIGGER update_photo_updated_at BEFORE UPDATE ON photo FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-DROP TRIGGER IF EXISTS update_comment_updated_at ON comment;
-CREATE TRIGGER update_comment_updated_at BEFORE UPDATE ON comment FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-DROP TRIGGER IF EXISTS update_social_media_updated_at ON social_media;
-CREATE TRIGGER update_social_media_updated_at BEFORE UPDATE ON social_media FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE INDEX IF NOT EXISTS idx_social_media_updated_at ON social_media(updated_at);

@@ -4,14 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"final-project/model"
-	"final-project/repository"
 )
 
 type photoRepository struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) repository.PhotoRepository {
+func New(db *sql.DB) *photoRepository {
 	return &photoRepository{db}
 }
 
@@ -90,8 +89,9 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 		SET 
 			title=$1,
 			caption=$2,
-			url=$3
-		WHERE id=$4
+			url=$3,
+			updated_at=NOW()
+		WHERE id=$4 AND updated_at=$5
 		RETURNING 
 			id, 
 			title, 
@@ -102,7 +102,7 @@ func (r *photoRepository) Update(ctx context.Context, tx *sql.Tx, data model.Pho
 		`
 	)
 
-	row := tx.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, data.ID)
+	row := tx.QueryRowContext(ctx, stmt, data.Title, data.Caption, data.URL, data.ID, data.UpdatedAt)
 	if err := row.Err(); err != nil {
 		return photo, err
 	}

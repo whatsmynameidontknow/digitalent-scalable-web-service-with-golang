@@ -8,7 +8,6 @@ import (
 	"final-project/helper"
 	"final-project/model"
 	"final-project/repository"
-	"final-project/service"
 	"log/slog"
 	"net/http"
 )
@@ -20,7 +19,7 @@ type commentService struct {
 	logger      *slog.Logger
 }
 
-func New(commentRepo repository.CommentRepository, photoRepo repository.PhotoRepository, db *sql.DB, logger *slog.Logger) service.CommentService {
+func New(commentRepo repository.CommentRepository, photoRepo repository.PhotoRepository, db *sql.DB, logger *slog.Logger) *commentService {
 	return &commentService{commentRepo, photoRepo, db, logger}
 }
 
@@ -106,7 +105,6 @@ func (s *commentService) GetAll(ctx context.Context) ([]dto.CommentResponse, err
 }
 
 func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.CommentRequest) (resp dto.CommentUpdateResponse, err error) {
-	var comment model.Comment
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
@@ -114,19 +112,9 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
-	tx, err := s.db.BeginTx(ctx, nil)
+	comment, err := s.commentRepo.FindByID(ctx, commentID)
 	if err != nil {
-		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
-		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
-	}
-	defer helper.RollbackOrCommit(tx, &err, s.logger)
-
-	comment.ID = commentID
-	comment.Message = data.Message
-
-	comment, err = s.commentRepo.Update(ctx, tx, comment)
-	if err != nil {
-		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Update")
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.FindByID")
 		if errors.Is(err, sql.ErrNoRows) {
 			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
@@ -136,6 +124,24 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	if comment.UserID != uint64(userID) {
 		s.logger.ErrorContext(ctx, "user is not the owner of the comment", "cause", "comment.UserID != uint64(userID)")
 		return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+	}
+
+	comment.Message = data.Message
+
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
+
+	comment, err = s.commentRepo.Update(ctx, tx, comment)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Update")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
 	resp = dto.CommentUpdateResponse{

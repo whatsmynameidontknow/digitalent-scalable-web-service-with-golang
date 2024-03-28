@@ -12,7 +12,7 @@ import (
 
 func InitUserRoutes(r *http.ServeMux, db *sql.DB, logger *slog.Logger) {
 	userRepo := userrepository.New(db)
-	userService := userservice.New(userRepo, logger)
+	userService := userservice.New(userRepo, db, logger)
 	userController := controller.NewUserController(userService)
 
 	r.Handle("POST /users/register", middleware.AllowedContentType(http.HandlerFunc(userController.Register)))

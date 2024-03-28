@@ -4,14 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"final-project/model"
-	"final-project/repository"
 )
 
 type socialMediaRepository struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) repository.SocialMediaRepository {
+func New(db *sql.DB) *socialMediaRepository {
 	return &socialMediaRepository{db}
 }
 
@@ -87,8 +86,9 @@ func (r *socialMediaRepository) Update(ctx context.Context, tx *sql.Tx, data mod
 			social_media
 		SET
 			name=$1,
-			url=$2
-		WHERE id=$3
+			url=$2,
+			updated_at=NOW()
+		WHERE id=$3 AND updated_at=$4
 		RETURNING
 			id,
 			name,
@@ -98,7 +98,7 @@ func (r *socialMediaRepository) Update(ctx context.Context, tx *sql.Tx, data mod
 	`
 	)
 
-	row := tx.QueryRowContext(ctx, stmt, data.Name, data.URL, data.ID)
+	row := tx.QueryRowContext(ctx, stmt, data.Name, data.URL, data.ID, data.UpdatedAt)
 	if err := row.Err(); err != nil {
 		return socialMedia, err
 	}

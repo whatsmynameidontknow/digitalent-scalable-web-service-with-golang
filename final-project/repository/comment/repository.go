@@ -4,14 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"final-project/model"
-	"final-project/repository"
 )
 
 type commentRepository struct {
 	db *sql.DB
 }
 
-func New(db *sql.DB) repository.CommentRepository {
+func New(db *sql.DB) *commentRepository {
 	return &commentRepository{
 		db: db,
 	}
@@ -97,8 +96,9 @@ func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.C
 		UPDATE 
 			comment
 		SET 
-			message=$1
-		WHERE id=$2
+			message=$1,
+			updated_at=NOW()
+		WHERE id=$2 AND updated_at=$3
 		RETURNING 
 			id, 
 			message, 
@@ -108,7 +108,7 @@ func (r *commentRepository) Update(ctx context.Context, tx *sql.Tx, data model.C
 		`
 	)
 
-	row := tx.QueryRowContext(ctx, stmt, data.Message, data.ID)
+	row := tx.QueryRowContext(ctx, stmt, data.Message, data.ID, data.UpdatedAt)
 	if err := row.Err(); err != nil {
 		return comment, err
 	}

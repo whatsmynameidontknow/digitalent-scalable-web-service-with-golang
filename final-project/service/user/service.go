@@ -8,7 +8,6 @@ import (
 	"final-project/helper"
 	"final-project/model"
 	"final-project/repository"
-	"final-project/service"
 	"log/slog"
 	"net/http"
 
@@ -17,11 +16,12 @@ import (
 
 type userService struct {
 	userRepo repository.UserRepository
+	db       *sql.DB
 	logger   *slog.Logger
 }
 
-func New(userRepo repository.UserRepository, logger *slog.Logger) service.UserService {
-	return &userService{userRepo, logger}
+func New(userRepo repository.UserRepository, db *sql.DB, logger *slog.Logger) *userService {
+	return &userService{userRepo, db, logger}
 }
 
 func (s *userService) Create(ctx context.Context, data dto.UserRequest) (dto.UserCreateResponse, error) {
@@ -87,23 +87,34 @@ func (s *userService) Login(ctx context.Context, data dto.UserRequest) (dto.User
 	return resp, nil
 }
 
-func (s *userService) Update(ctx context.Context, data dto.UserRequest) (dto.UserUpdateResponse, error) {
-	var (
-		resp dto.UserUpdateResponse
-		user model.User
-		err  error
-	)
+func (s *userService) Update(ctx context.Context, data dto.UserRequest) (resp dto.UserUpdateResponse, err error) {
 
 	userID, ok := ctx.Value(helper.UserIDKey).(float64)
 	if !ok {
 		s.logger.ErrorContext(ctx, "userID is not float64", "cause", "ctx.Value(helper.UserIDKey).(float64)")
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
-	user.ID = uint64(userID)
+
+	user, err := s.userRepo.FindByID(ctx, uint64(userID))
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.userRepo.FindByID")
+		if errors.Is(err, sql.ErrNoRows) {
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+		}
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+
 	user.Email = data.Email
 	user.Username = data.Username
 
-	user, err = s.userRepo.Update(ctx, user)
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.db.BeginTx")
+		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
+	}
+	defer helper.RollbackOrCommit(tx, &err, s.logger)
+
+	user, err = s.userRepo.Update(ctx, tx, user)
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.userRepo.Update")
 		pqErr := new(pq.Error)
@@ -113,16 +124,18 @@ func (s *userService) Update(ctx context.Context, data dto.UserRequest) (dto.Use
 			}
 		}
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrUserNotFound, http.StatusNotFound)
+			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
 
-	resp.ID = user.ID
-	resp.Email = user.Email
-	resp.Username = user.Username
-	resp.Age = user.Age
-	resp.UpdatedAt = user.UpdatedAt
+	resp = dto.UserUpdateResponse{
+		ID:        user.ID,
+		Username:  user.Username,
+		Email:     user.Email,
+		Age:       user.Age,
+		UpdatedAt: user.UpdatedAt,
+	}
 
 	return resp, nil
 }
