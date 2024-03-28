@@ -12,6 +12,11 @@ func New(conf config.DB) (*sql.DB, error) {
 		return nil, err
 	}
 
+	db.SetMaxIdleConns(conf.MaxIdleConns)
+	db.SetMaxOpenConns(conf.MaxOpenConns)
+	db.SetConnMaxLifetime(conf.ConnMaxLifetime)
+	db.SetConnMaxIdleTime(conf.ConnMaxIdleTime)
+
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}

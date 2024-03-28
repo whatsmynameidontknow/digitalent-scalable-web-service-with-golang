@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"time"
 )
 
 type Config struct {
@@ -15,11 +16,17 @@ type Config struct {
 }
 
 type DB struct {
-	Host     string `json:"host"`
-	Port     uint   `json:"port"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
+	Host               string `json:"host"`
+	Port               uint   `json:"port"`
+	Username           string `json:"username"`
+	Password           string `json:"password"`
+	Name               string `json:"name"`
+	MaxIdleConns       int    `json:"max_idle_conns"`
+	MaxOpenConns       int    `json:"max_open_conns"`
+	ConnMaxLifetimeStr string `json:"conn_max_lifetime"`
+	ConnMaxIdleTimeStr string `json:"conn_max_idle_time"`
+	ConnMaxLifetime    time.Duration
+	ConnMaxIdleTime    time.Duration
 }
 
 func (db DB) ConnectionString() string {
@@ -58,6 +65,16 @@ func Load(path string) (Config, error) {
 
 	if !conf.App.isValidBasePath() {
 		return conf, helper.ErrInvalidBasePath
+	}
+
+	conf.DB.ConnMaxIdleTime, err = time.ParseDuration(conf.DB.ConnMaxIdleTimeStr)
+	if err != nil {
+		return conf, helper.ErrInvalidDuration
+	}
+
+	conf.DB.ConnMaxLifetime, err = time.ParseDuration(conf.DB.ConnMaxLifetimeStr)
+	if err != nil {
+		return conf, helper.ErrInvalidDuration
 	}
 
 	return conf, nil

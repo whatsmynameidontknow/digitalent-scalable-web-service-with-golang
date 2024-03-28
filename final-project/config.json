@@ -4,7 +4,11 @@
         "port": 5432,
         "username": "aku",
         "password": "123",
-        "name": "mygram"
+        "name": "mygram",
+        "max_idle_conns": 10,
+        "max_open_conns": 20,
+        "conn_max_lifetime": "5m",
+        "conn_max_idle_time": "1m"
     },
     "app": {
         "host": "0.0.0.0",
