@@ -139,7 +139,7 @@ func (s *commentService) Update(ctx context.Context, commentID uint64, data dto.
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.commentRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+			return resp, helper.NewResponseError(helper.ErrUpdateConflict, http.StatusConflict)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}

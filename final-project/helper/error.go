@@ -36,6 +36,7 @@ var (
 	ErrInvalidJWT            = errors.New("invalid JWT token")
 	ErrInvalidBasePath       = errors.New("base_path must start and end with a single '/' and can't contain any special characters except '-' and '/'")
 	ErrInvalidDuration       = errors.New("invalid duration format")
+	ErrUpdateConflict        = errors.New("the data you're trying to update has been modified by someone else")
 )
 
 type ResponseError struct {

@@ -139,7 +139,7 @@ func (s *photoService) Update(ctx context.Context, id uint64, data dto.PhotoRequ
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.photoRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+			return resp, helper.NewResponseError(helper.ErrUpdateConflict, http.StatusConflict)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}

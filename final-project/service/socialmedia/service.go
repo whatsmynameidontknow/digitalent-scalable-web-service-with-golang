@@ -122,7 +122,7 @@ func (s *socialMediaService) Update(ctx context.Context, id uint64, data dto.Soc
 	if err != nil {
 		s.logger.ErrorContext(ctx, err.Error(), "cause", "s.socialMediaRepo.Update")
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+			return resp, helper.NewResponseError(helper.ErrUpdateConflict, http.StatusConflict)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}

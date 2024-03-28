@@ -124,7 +124,7 @@ func (s *userService) Update(ctx context.Context, data dto.UserRequest) (resp dt
 			}
 		}
 		if errors.Is(err, sql.ErrNoRows) {
-			return resp, helper.NewResponseError(helper.ErrNotAllowed, http.StatusForbidden)
+			return resp, helper.NewResponseError(helper.ErrUpdateConflict, http.StatusConflict)
 		}
 		return resp, helper.NewResponseError(helper.ErrInternal, http.StatusInternalServerError)
 	}
